@@ -4,16 +4,10 @@
  Using Adafruit TFT Capacitive Touch Shield and Arduino Uno
 
  WIP:
- - Git
- - Game logic
-   - 3D logic
- - Reset button
+ - Quit button
  - Settings
    - Game wins for match win
- - AI
- - Remove unused function
  - Consider better implmentations
- - 3D UI
 
  Written by Sam Ellis
  ****************************************************/
@@ -26,9 +20,9 @@
 #include <Adafruit_FT6206.h>    // Capacitive touchscreen library
 
 // Debugging
-bool verbose = true;
+#define verbose false
 
-// Use hardware SPI (on 13, 12, 11) and below for CS/DC
+// Use hardware SPI (on 13, 12, 11) and 9/10 for CS/DC
 #define tftDisplay_DC 9
 #define tftDisplay_CS 10
 Adafruit_ILI9341 tftDisplay = Adafruit_ILI9341(tftDisplay_CS, tftDisplay_DC);
@@ -38,8 +32,9 @@ Adafruit_FT6206 touchScreen = Adafruit_FT6206();
 
 // SD card CS pin
 #define SD_CS 4
+
 // Image drawing pixel buffer
-#define BUFFPIXEL 5
+#define BUFFPIXEL 20
 
 // New type for keeping track of game state
 enum State {
@@ -47,7 +42,7 @@ enum State {
 };
 
 // Array of arrays of three indexes in a row on a 3x3 grid
-int winIndexes[][3] = { {0, 4, 8}, {2, 4, 6}, {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {
+uint8_t winIndexes[][3] = { {0, 4, 8}, {2, 4, 6}, {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {
     0, 3, 6}, {1, 4, 7}, {2, 5, 8}};
 
 void setup() {
@@ -57,18 +52,18 @@ void setup() {
   tftDisplay.begin();
 
   if (!touchScreen.begin()) {
-    Serial.println("Couldn't start FT6206 touchscreen controller");
-    Serial.println("Driver might not have been found");
+    Serial.println(F("Couldn't start FT6206 touchscreen controller"));
+    Serial.println(F("Driver might not have been found"));
     while (true);
   }
 
-  if (verbose == true)
-    Serial.println("Display and touchscreen started");
+  if (verbose)
+    Serial.println(F("Display and touchscreen started"));
 
   if (!SD.begin(SD_CS)) {
-    Serial.println("Failed to initialise SD card");
-  } else if (verbose == true)
-    Serial.println("SD card mounted");
+    Serial.println(F("Failed to initialise SD card"));
+  } else if (verbose)
+    Serial.println(F("SD card mounted"));
 
   // tests();
 
@@ -85,18 +80,13 @@ void loop() {
 //
 //  Serial.println(
 //      "screen pressed at: (" + (String) point.x + "," + (String) point.y + ")");
-  Serial.println("loooop");
+  Serial.println(F("loooop"));
   delay(100);
 
 }
 
-void clearScreen() {
-  char bitmap[] = "blank.bmp";
-  bmpDraw(bitmap, 0, 0);
-}
-
 void startScreen() {
-  int maxGames = 5;
+  uint8_t maxGames = 5;
   char bitmap[] = "start.bmp";
   bmpDraw(bitmap, 0, 0);
 
@@ -119,9 +109,9 @@ void startScreen() {
 }
 
 void playMatch(int maxGames) {
-  int noughtsScore = 0;
-  int crossesScore = 0;
-  int gamesPlayed = 0;
+  uint8_t noughtsScore = 0;
+  uint8_t crossesScore = 0;
+  uint8_t gamesPlayed = 0;
 
   while (gamesPlayed < maxGames) {
     State winner = game(noughtsScore, crossesScore);
@@ -139,7 +129,7 @@ void playMatch(int maxGames) {
       bmpDraw(bitmap, 0, 110);
       noughtsScore += 1;
     } else {
-      // Draw
+      // Game is a draw
       char bitmap[] = "draw.bmp";
       bmpDraw(bitmap, 0, 110);
     }
@@ -150,18 +140,18 @@ void playMatch(int maxGames) {
   }
 }
 
-State game(int noughtsScore, int crossesScore) {
+State game(uint8_t noughtsScore, uint8_t crossesScore) {
   State player = cross;
   State boardState[9] = {empty, empty, empty, empty, empty, empty, empty, empty,
       empty};
   State winner = empty;
-  int placedCounters = 0;
-  int square = -1;
+  uint8_t placedCounters = 0;
+  uint8_t square = 255;
   TS_Point marker;
 
   // Draw game Screen
-  if (verbose == true)
-    Serial.println("Drawing game");
+  if (verbose)
+    Serial.println(F("Drawing game"));
   char bitmap[] = "main.bmp";
   bmpDraw(bitmap, 0, 0);
   updateScore(noughtsScore, crossesScore);
@@ -172,10 +162,10 @@ State game(int noughtsScore, int crossesScore) {
       if (!touchScreen.touched())
         continue;
       TS_Point point = getPoint();
-      if (verbose == true)
+      if (verbose)
         Serial.println(
-            "screen pressed at: (" + (String) point.x + "," + (String) point.y
-                + ")");
+            (String)F("screen pressed at: (") + (String) point.x + "," + (String) point.y
+                + (String)F(")"));
       if (point.y > 79 and point.y < 161) {
         if (point.x < 81) {
           square = 0;
@@ -215,7 +205,7 @@ State game(int noughtsScore, int crossesScore) {
         }
         marker.y = 255;
       }
-      if (!(square == -1))
+      if (!(square == 255))
         break;
     }
 
@@ -249,13 +239,13 @@ State game(int noughtsScore, int crossesScore) {
     placedCounters += 1;
 
     // Check to see if someone has won
-    for (int i = 0; i < 8; i += 1) {
+    for (uint8_t i = 0; i < 8; i += 1) {
       if (boardState[winIndexes[i][0]] == boardState[winIndexes[i][1]]
           and boardState[winIndexes[i][0]] == boardState[winIndexes[i][2]]) {
         winner = boardState[winIndexes[i][0]];
       }
     }
-    Serial.print("winner = ");
+    Serial.print(F("winner = "));
     Serial.println(winner);
     if (!(winner == empty))
       break;
@@ -304,15 +294,6 @@ TS_Point getPoint() {
   return point;
 }
 
-// Unused
-bool isIntInArray(int arr[], int n, int numToFind) {
-  for (int i = 0; i < n; i++) {
-    if (arr[i] == numToFind)
-      return true;
-  }
-  return false;
-}
-
 void bmpDraw(char *filename, int16_t x, int16_t y) {
 
   File bmpFile;
@@ -340,7 +321,7 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
 
   // Open requested file on SD card
   if ((bmpFile = SD.open(filename))) {
-    Serial.println("File (maybe) not found");
+    Serial.println(F("File (maybe) not found"));
     // return;
   }
 
@@ -445,7 +426,7 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
         } // end onscreen
         Serial.print(F("Loaded in "));
         Serial.print(millis() - startTime);
-        Serial.println(" ms");
+        Serial.println(F(" ms"));
       } // end goodBmp
     }
   }
@@ -456,7 +437,7 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
   Serial.println();
 }
 
-// These read 16- and 32-bit types from the SD card file.
+// These read 16-bit and 32-bit types from the SD card file.
 // BMP data is stored little-endian, Arduino is little-endian too.
 // May need to reverse subscript order if porting elsewhere.
 
@@ -475,6 +456,11 @@ uint32_t read32(File &f) {
   ((uint8_t *) &result)[3] = f.read(); // MSB
   return result;
 }
+
+//void clearScreen() {
+//  char bitmap[] = "blank.bmp";
+//  bmpDraw(bitmap, 0, 0);
+//}
 
 //void tests(){
 //
