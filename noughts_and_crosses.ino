@@ -7,6 +7,9 @@
  - Quit button
  - Settings
    - Game wins for match win
+ - Match win banner
+ - Bug
+ - Minimise libraries, also maybe rename
  - Consider better implmentations
 
  Written by Sam Ellis
@@ -22,7 +25,7 @@
 // Debugging
 #define verbose false
 
-// Use hardware SPI (on 13, 12, 11) and 9/10 for CS/DC
+// Use hardware SPI (on 13, 12, 11) and below for CS/DC
 #define tftDisplay_DC 9
 #define tftDisplay_CS 10
 Adafruit_ILI9341 tftDisplay = Adafruit_ILI9341(tftDisplay_CS, tftDisplay_DC);
@@ -42,8 +45,8 @@ enum State {
 };
 
 // Array of arrays of three indexes in a row on a 3x3 grid
-uint8_t winIndexes[][3] = { {0, 4, 8}, {2, 4, 6}, {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {
-    0, 3, 6}, {1, 4, 7}, {2, 5, 8}};
+uint8_t winIndexes[][3] = { {0, 4, 8}, {2, 4, 6}, {0, 1, 2}, {3, 4, 5},
+    {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}};
 
 void setup() {
 
@@ -57,13 +60,11 @@ void setup() {
     while (true);
   }
 
-  if (verbose)
-    Serial.println(F("Display and touchscreen started"));
+  if (verbose) Serial.println(F("Display and touchscreen started"));
 
   if (!SD.begin(SD_CS)) {
     Serial.println(F("Failed to initialise SD card"));
-  } else if (verbose)
-    Serial.println(F("SD card mounted"));
+  } else if (verbose) Serial.println(F("SD card mounted"));
 
   // tests();
 
@@ -73,8 +74,7 @@ void setup() {
 
 void loop() {
 
-  if (!touchScreen.touched())
-    return;
+  if (!touchScreen.touched()) return;
 
 //  TS_Point point = getPoint();
 //
@@ -87,8 +87,7 @@ void loop() {
 
 void startScreen() {
   uint8_t maxGames = 5;
-  char bitmap[] = "start.bmp";
-  bmpDraw(bitmap, 0, 0);
+  drawBitmap('l', 0, 0);
 
   while (true) {
     if (touchScreen.touched()) {
@@ -113,35 +112,44 @@ void playMatch(int maxGames) {
   uint8_t crossesScore = 0;
   uint8_t gamesPlayed = 0;
 
+  // Draw score bar for match
+  drawBitmap('a', 0, 0);
+  drawBitmap('c', 118, 32);
+  updateScore(noughtsScore, crossesScore);
+  drawBitmap('b', 81, 10);
+
   while (gamesPlayed < maxGames) {
     State winner = game(noughtsScore, crossesScore);
-    gamesPlayed += 1;
+    gamesPlayed++;
 
     // Draw win banner
-    if (winner == cross) {
+    char bitmap;
+    switch (winner) {
+    case cross:
       // Crosses wins
-      char bitmap[] = "cross-w.bmp";
-      bmpDraw(bitmap, 0, 110);
-      crossesScore += 1;
-    } else if (winner == nought) {
+      bitmap = 'e';
+      crossesScore++;
+      break;
+    case nought:
       // Noughts wins
-      char bitmap[] = "nought-w.bmp";
-      bmpDraw(bitmap, 0, 110);
-      noughtsScore += 1;
-    } else {
+      bitmap = 'g';
+      noughtsScore++;
+      break;
+    case empty:
       // Game is a draw
-      char bitmap[] = "draw.bmp";
-      bmpDraw(bitmap, 0, 110);
+      bitmap = 'f';
+      break;
     }
+    drawBitmap(bitmap, 0, 110);
+
     updateScore(noughtsScore, crossesScore);
     while (true)
-      if (touchScreen.touched())
-        break;
+      if (touchScreen.touched()) break;
   }
 }
 
 State game(uint8_t noughtsScore, uint8_t crossesScore) {
-  State player = cross;
+  State player = nought;
   State boardState[9] = {empty, empty, empty, empty, empty, empty, empty, empty,
       empty};
   State winner = empty;
@@ -149,23 +157,18 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
   uint8_t square = 255;
   TS_Point marker;
 
-  // Draw game Screen
-  if (verbose)
-    Serial.println(F("Drawing game"));
-  char bitmap[] = "main.bmp";
-  bmpDraw(bitmap, 0, 0);
-  updateScore(noughtsScore, crossesScore);
+  // Draw grid
+  drawBitmap('d', 0, 80);
 
   // Start match
   while (placedCounters < 9) {
     while (true) {
-      if (!touchScreen.touched())
-        continue;
+      if (!touchScreen.touched()) continue;
       TS_Point point = getPoint();
       if (verbose)
         Serial.println(
-            (String)F("screen pressed at: (") + (String) point.x + "," + (String) point.y
-                + (String)F(")"));
+            (String) F("screen pressed at: (") + (String) point.x + ","
+                + (String) point.y + (String) F(")"));
       if (point.y > 79 and point.y < 161) {
         if (point.x < 81) {
           square = 0;
@@ -205,41 +208,21 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
         }
         marker.y = 255;
       }
-      if (!(square == 255))
-        break;
+      if (!(square == 255)) break;
     }
 
     // Check to see if selected square is occupied
-    if (!(boardState[square] == empty))
-      continue;
+    if (!(boardState[square] == empty)) continue;
 
     // Update board state
     boardState[square] = player;
 
-    // Draw nought or cross on selected square
-    if (player == cross) {
-      if (square % 2) {
-        char bitmap[] = "X-b.bmp";
-        bmpDraw(bitmap, marker.x, marker.y);
-      } else {
-        char bitmap[] = "X-w.bmp";
-        bmpDraw(bitmap, marker.x, marker.y);
-      }
-      player = nought;
-    } else {
-      if (square % 2) {
-        char bitmap[] = "O-b.bmp";
-        bmpDraw(bitmap, marker.x - 2, marker.y);
-      } else {
-        char bitmap[] = "O-w.bmp";
-        bmpDraw(bitmap, marker.x - 2, marker.y);
-      }
-      player = cross;
-    }
-    placedCounters += 1;
+    // Draw nought or cross on selected square and swap player
+    player = addMove(square, marker, player);
+    placedCounters++;
 
     // Check to see if someone has won
-    for (uint8_t i = 0; i < 8; i += 1) {
+    for (uint8_t i = 0; i < 8; i++) {
       if (boardState[winIndexes[i][0]] == boardState[winIndexes[i][1]]
           and boardState[winIndexes[i][0]] == boardState[winIndexes[i][2]]) {
         winner = boardState[winIndexes[i][0]];
@@ -247,43 +230,46 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
     }
     Serial.print(F("winner = "));
     Serial.println(winner);
-    if (!(winner == empty))
-      break;
+    if (!(winner == empty)) break;
     delay(100);
   }
   return winner;
 }
 
-void gameOver(State winner) {
-  if (winner == cross) {
-    // Crosses wins
-    char bitmap[] = "cross-w.bmp";
-    bmpDraw(bitmap, 0, 110);
-  } else if (winner == nought) {
-    // Noughts wins
-    char bitmap[] = "cross-w.bmp";
-    bmpDraw(bitmap, 0, 110);
-  } else {
-    // Draw
-    char bitmap[] = "draw.bmp";
-    bmpDraw(bitmap, 0, 110);
-  }
-  while (true)
-    if (touchScreen.touched())
-      break;
-  return;
-}
-
 void updateScore(int noughtsScore, int crossesScore) {
-  char bitmap[] = "0.bmp";
   String s = (String) noughtsScore;
   char newScore = s.charAt(0);
-  bitmap[0] = newScore;
-  bmpDraw(bitmap, 95, 29);
+  drawBitmap(newScore, 95, 29);
   s = (String) crossesScore;
   newScore = s.charAt(0);
-  bitmap[0] = newScore;
-  bmpDraw(bitmap, 132, 29);
+  drawBitmap(newScore, 132, 28);
+}
+
+// Function allows recycling
+State addMove(uint8_t square, TS_Point marker, State player) {
+  char bitmap;
+  Serial.print(F("addMove, player = "));
+  Serial.println(player);
+  if (player == cross) {
+    Serial.println(F("this might be a cross"));
+    if (square % 2) {
+      bitmap = 'j';
+    } else {
+      bitmap = 'k';
+    }
+    player = nought;
+    drawBitmap(bitmap, marker.x, marker.y);
+  } else {
+    Serial.println(F("this might be a nought"));
+    if (square % 2) {
+      bitmap = 'h';
+    } else {
+      bitmap = 'i';
+    }
+    player = cross;
+    drawBitmap(bitmap, marker.x - 2, marker.y);
+  }
+  return player;
 }
 
 TS_Point getPoint() {
@@ -294,7 +280,7 @@ TS_Point getPoint() {
   return point;
 }
 
-void bmpDraw(char *filename, int16_t x, int16_t y) {
+void drawBitmap(char fileInput, int16_t x, int16_t y) {
 
   File bmpFile;
   int bmpWidth, bmpHeight;   // W+H in pixels
@@ -308,9 +294,9 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
   int w, h, row, col, x2, y2, bx1, by1;
   uint8_t r, g, b;
   uint32_t pos = 0, startTime = millis();
+  char filename[6] = {fileInput, '.', 'b', 'm', 'p'};
 
-  if ((x >= tftDisplay.width()) || (y >= tftDisplay.height()))
-    return;
+  if ((x >= tftDisplay.width()) || (y >= tftDisplay.height())) return;
 
   Serial.println();
   Serial.print(F("Loading image '"));
@@ -378,10 +364,8 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
             y = 0;
             h = y2 + 1;
           }
-          if (x2 >= tftDisplay.width())
-            w = tftDisplay.width() - x; // Clip right
-          if (y2 >= tftDisplay.height())
-            h = tftDisplay.height() - y; // Clip bottom
+          if (x2 >= tftDisplay.width()) w = tftDisplay.width() - x; // Clip right
+          if (y2 >= tftDisplay.height()) h = tftDisplay.height() - y; // Clip bottom
 
           // Set tftDisplay address window to clipped image bounds
           tftDisplay.startWrite(); // Requires start/end transaction now
@@ -396,10 +380,10 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
             // place if the file position actually needs to change
             // (avoids a lot of cluster math in SD library).
             if (flip) // Bitmap is stored bottom-to-top order (normal BMP)
-              pos = bmpImageoffset + (bmpHeight - 1 - (row + by1)) * rowSize;
+            pos = bmpImageoffset + (bmpHeight - 1 - (row + by1)) * rowSize;
             else
-              // Bitmap is stored top-to-bottom
-              pos = bmpImageoffset + (row + by1) * rowSize;
+            // Bitmap is stored top-to-bottom
+            pos = bmpImageoffset + (row + by1) * rowSize;
             pos += bx1 * 3; // Factor in starting column (bx1)
             if (bmpFile.position() != pos) { // Need seek?
               tftDisplay.endWrite(); // End tftDisplay transaction
@@ -459,7 +443,7 @@ uint32_t read32(File &f) {
 
 //void clearScreen() {
 //  char bitmap[] = "blank.bmp";
-//  bmpDraw(bitmap, 0, 0);
+//  drawBitmap(bitmap, 0, 0);
 //}
 
 //void tests(){
