@@ -1,25 +1,22 @@
 /***************************************************
-  Touchscreen Noughts and Crosses Project
+ Touchscreen Noughts and Crosses Project
 
-  Using Adafruit TFT Capacitive Touch Shield and Arduino Uno
+ Using Adafruit TFT Capacitive Touch Shield and Arduino Uno
 
-  WIP:
-  - Git
-  - Game logic
-    - win checking
-    - 3D logic
-  - Winning banner
-  - Reset button
-  - Settings
-    - Game wins for match win
-  - AI
-  - Remove unused function
-  - Consider better implmentations
-  - 3D UI
+ WIP:
+ - Git
+ - Game logic
+   - 3D logic
+ - Reset button
+ - Settings
+   - Game wins for match win
+ - AI
+ - Remove unused function
+ - Consider better implmentations
+ - 3D UI
 
-  Written by Sam Ellis
+ Written by Sam Ellis
  ****************************************************/
-
 
 #include <SPI.h>    // Communication with display
 #include <Adafruit_GFX.h>   // Graphics library
@@ -28,10 +25,8 @@
 #include <Wire.h>   // Needed by FT6206
 #include <Adafruit_FT6206.h>    // Capacitive touchscreen library
 
-
 // Debugging
-bool verbose = false;
-
+bool verbose = true;
 
 // Use hardware SPI (on 13, 12, 11) and below for CS/DC
 #define tftDisplay_DC 9
@@ -43,15 +38,17 @@ Adafruit_FT6206 touchScreen = Adafruit_FT6206();
 
 // SD card CS pin
 #define SD_CS 4
-// SD card Pixel buffer
-#define BUFFPIXEL 40
+// Image drawing pixel buffer
+#define BUFFPIXEL 5
 
-// Keep track of the score
-int noughtsScore = 0;
-int crossesScore = 0;
+// New type for keeping track of game state
+enum State {
+  empty, nought, cross
+};
 
-// New type for keeping track of board state
-enum State {empty, nought, cross};
+// Array of arrays of three indexes in a row on a 3x3 grid
+int winIndexes[][3] = { {0, 4, 8}, {2, 4, 6}, {0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {
+    0, 3, 6}, {1, 4, 7}, {2, 5, 8}};
 
 void setup() {
 
@@ -59,20 +56,21 @@ void setup() {
 
   tftDisplay.begin();
 
-  if (!touchScreen.begin()){
+  if (!touchScreen.begin()) {
     Serial.println("Couldn't start FT6206 touchscreen controller");
     Serial.println("Driver might not have been found");
-    while (1);
+    while (true);
   }
 
-  if (verbose == true) Serial.println("Display and touchscreen started");
+  if (verbose == true)
+    Serial.println("Display and touchscreen started");
 
   if (!SD.begin(SD_CS)) {
     Serial.println("Failed to initialise SD card");
-  } else if (verbose == true) Serial.println("SD card mounted");
+  } else if (verbose == true)
+    Serial.println("SD card mounted");
 
   // tests();
-
 
   startScreen();
 
@@ -80,11 +78,14 @@ void setup() {
 
 void loop() {
 
-  if (!touchScreen.touched()) return;
+  if (!touchScreen.touched())
+    return;
 
-  TS_Point point = getPoint();
-
-  Serial.println("screen pressed at: (" + (String)point.x + "," + (String)point.y + ")");
+//  TS_Point point = getPoint();
+//
+//  Serial.println(
+//      "screen pressed at: (" + (String) point.x + "," + (String) point.y + ")");
+  Serial.println("loooop");
   delay(100);
 
 }
@@ -95,43 +96,86 @@ void clearScreen() {
 }
 
 void startScreen() {
-
+  int maxGames = 5;
   char bitmap[] = "start.bmp";
   bmpDraw(bitmap, 0, 0);
 
   while (true) {
     if (touchScreen.touched()) {
-        TS_Point point = getPoint();
-        if (point.x > 24 and point.x < 216 and point.y > 204 and point.y < 256) {
-          // They pressed the start button
-          break;
-        } else {
-          continue;
-        }
+      TS_Point point = getPoint();
+      if (point.x > 24 and point.x < 216 and point.y > 204 and point.y < 256) {
+        // They pressed the start button
+        break;
       } else {
         continue;
       }
+    } else {
+      continue;
+    }
   }
 
-  playGame();
+  playMatch(maxGames);
 
 }
 
-void playGame() {
-  noughtsScore = 0;
-  crossesScore = 0;
+void playMatch(int maxGames) {
+  int noughtsScore = 0;
+  int crossesScore = 0;
+  int gamesPlayed = 0;
+
+  while (gamesPlayed < maxGames) {
+    State winner = game(noughtsScore, crossesScore);
+    gamesPlayed += 1;
+
+    // Draw win banner
+    if (winner == cross) {
+      // Crosses wins
+      char bitmap[] = "cross-w.bmp";
+      bmpDraw(bitmap, 0, 110);
+      crossesScore += 1;
+    } else if (winner == nought) {
+      // Noughts wins
+      char bitmap[] = "nought-w.bmp";
+      bmpDraw(bitmap, 0, 110);
+      noughtsScore += 1;
+    } else {
+      // Draw
+      char bitmap[] = "draw.bmp";
+      bmpDraw(bitmap, 0, 110);
+    }
+    updateScore(noughtsScore, crossesScore);
+    while (true)
+      if (touchScreen.touched())
+        break;
+  }
+}
+
+State game(int noughtsScore, int crossesScore) {
   State player = cross;
-  State boardState[9] = {empty, empty, empty, empty, empty, empty, empty, empty, empty};
+  State boardState[9] = {empty, empty, empty, empty, empty, empty, empty, empty,
+      empty};
+  State winner = empty;
   int placedCounters = 0;
-  drawGameScreen();
   int square = -1;
   TS_Point marker;
 
+  // Draw game Screen
+  if (verbose == true)
+    Serial.println("Drawing game");
+  char bitmap[] = "main.bmp";
+  bmpDraw(bitmap, 0, 0);
+  updateScore(noughtsScore, crossesScore);
+
+  // Start match
   while (placedCounters < 9) {
-    while(true) {
-      if (!touchScreen.touched()) continue;
+    while (true) {
+      if (!touchScreen.touched())
+        continue;
       TS_Point point = getPoint();
-      if (verbose == true) Serial.println("screen pressed at: (" + (String)point.x + "," + (String)point.y + ")");
+      if (verbose == true)
+        Serial.println(
+            "screen pressed at: (" + (String) point.x + "," + (String) point.y
+                + ")");
       if (point.y > 79 and point.y < 161) {
         if (point.x < 81) {
           square = 0;
@@ -171,11 +215,13 @@ void playGame() {
         }
         marker.y = 255;
       }
-      if (!(square == -1)) break;
+      if (!(square == -1))
+        break;
     }
 
     // Check to see if selected square is occupied
-    if (!(boardState[square] == empty)) continue;
+    if (!(boardState[square] == empty))
+      continue;
 
     // Update board state
     boardState[square] = player;
@@ -193,32 +239,58 @@ void playGame() {
     } else {
       if (square % 2) {
         char bitmap[] = "O-b.bmp";
-        bmpDraw(bitmap, marker.x -2, marker.y);
+        bmpDraw(bitmap, marker.x - 2, marker.y);
       } else {
         char bitmap[] = "O-w.bmp";
-        bmpDraw(bitmap, marker.x -2, marker.y);
+        bmpDraw(bitmap, marker.x - 2, marker.y);
       }
       player = cross;
     }
     placedCounters += 1;
+
+    // Check to see if someone has won
+    for (int i = 0; i < 8; i += 1) {
+      if (boardState[winIndexes[i][0]] == boardState[winIndexes[i][1]]
+          and boardState[winIndexes[i][0]] == boardState[winIndexes[i][2]]) {
+        winner = boardState[winIndexes[i][0]];
+      }
+    }
+    Serial.print("winner = ");
+    Serial.println(winner);
+    if (!(winner == empty))
+      break;
     delay(100);
   }
+  return winner;
 }
 
-void drawGameScreen() {
-  if (verbose == true) Serial.println("Drawing game");
-  char bitmap[] = "main2.bmp";
-  bmpDraw(bitmap, 0, 0);
-  updateScore();
+void gameOver(State winner) {
+  if (winner == cross) {
+    // Crosses wins
+    char bitmap[] = "cross-w.bmp";
+    bmpDraw(bitmap, 0, 110);
+  } else if (winner == nought) {
+    // Noughts wins
+    char bitmap[] = "cross-w.bmp";
+    bmpDraw(bitmap, 0, 110);
+  } else {
+    // Draw
+    char bitmap[] = "draw.bmp";
+    bmpDraw(bitmap, 0, 110);
+  }
+  while (true)
+    if (touchScreen.touched())
+      break;
+  return;
 }
 
-void updateScore() {
+void updateScore(int noughtsScore, int crossesScore) {
   char bitmap[] = "0.bmp";
-  String s = (String)noughtsScore;
+  String s = (String) noughtsScore;
   char newScore = s.charAt(0);
   bitmap[0] = newScore;
   bmpDraw(bitmap, 95, 29);
-  s = (String)crossesScore;
+  s = (String) crossesScore;
   newScore = s.charAt(0);
   bitmap[0] = newScore;
   bmpDraw(bitmap, 132, 29);
@@ -234,28 +306,30 @@ TS_Point getPoint() {
 
 // Unused
 bool isIntInArray(int arr[], int n, int numToFind) {
-  for(int i = 0; i < n; i++) {
-    if (arr[i] == numToFind) return true;
+  for (int i = 0; i < n; i++) {
+    if (arr[i] == numToFind)
+      return true;
   }
   return false;
 }
 
 void bmpDraw(char *filename, int16_t x, int16_t y) {
 
-  File     bmpFile;
-  int      bmpWidth, bmpHeight;   // W+H in pixels
-  uint8_t  bmpDepth;              // Bit depth (currently must be 24)
+  File bmpFile;
+  int bmpWidth, bmpHeight;   // W+H in pixels
+  uint8_t bmpDepth;              // Bit depth (currently must be 24)
   uint32_t bmpImageoffset;        // Start of image data in file
   uint32_t rowSize;               // Not always = bmpWidth; may have padding
-  uint8_t  sdbuffer[3*BUFFPIXEL]; // pixel buffer (R+G+B per pixel)
-  uint8_t  buffidx = sizeof(sdbuffer); // Current position in sdbuffer
-  boolean  goodBmp = false;       // Set to true on valid header parse
-  boolean  flip    = true;        // BMP is stored bottom-to-top
-  int      w, h, row, col, x2, y2, bx1, by1;
-  uint8_t  r, g, b;
+  uint8_t sdbuffer[3 * BUFFPIXEL]; // pixel buffer (R+G+B per pixel)
+  uint8_t buffidx = sizeof(sdbuffer); // Current position in sdbuffer
+  boolean goodBmp = false;       // Set to true on valid header parse
+  boolean flip = true;        // BMP is stored bottom-to-top
+  int w, h, row, col, x2, y2, bx1, by1;
+  uint8_t r, g, b;
   uint32_t pos = 0, startTime = millis();
 
-  if((x >= tftDisplay.width()) || (y >= tftDisplay.height())) return;
+  if ((x >= tftDisplay.width()) || (y >= tftDisplay.height()))
+    return;
 
   Serial.println();
   Serial.print(F("Loading image '"));
@@ -270,22 +344,25 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
     // return;
   }
 
-
   // Parse BMP header
   Serial.println(F("Start parse"));
-  if(read16(bmpFile) == 0x4D42) { // BMP signature
-    Serial.print(F("File size: ")); Serial.println(read32(bmpFile));
-    (void)read32(bmpFile); // Read & ignore creator bytes
+  if (read16(bmpFile) == 0x4D42) { // BMP signature
+    Serial.print(F("File size: "));
+    Serial.println(read32(bmpFile));
+    (void) read32(bmpFile); // Read & ignore creator bytes
     bmpImageoffset = read32(bmpFile); // Start of image data
-    Serial.print(F("Image Offset: ")); Serial.println(bmpImageoffset, DEC);
+    Serial.print(F("Image Offset: "));
+    Serial.println(bmpImageoffset, DEC);
     // Read DIB header
-    Serial.print(F("Header size: ")); Serial.println(read32(bmpFile));
-    bmpWidth  = read32(bmpFile);
+    Serial.print(F("Header size: "));
+    Serial.println(read32(bmpFile));
+    bmpWidth = read32(bmpFile);
     bmpHeight = read32(bmpFile);
-    if(read16(bmpFile) == 1) { // # planes -- must be '1'
+    if (read16(bmpFile) == 1) { // # planes -- must be '1'
       bmpDepth = read16(bmpFile); // bits per pixel
-      Serial.print(F("Bit Depth: ")); Serial.println(bmpDepth);
-      if((bmpDepth == 24) && (read32(bmpFile) == 0)) { // 0 = uncompressed
+      Serial.print(F("Bit Depth: "));
+      Serial.println(bmpDepth);
+      if ((bmpDepth == 24) && (read32(bmpFile) == 0)) { // 0 = uncompressed
 
         goodBmp = true; // Supported BMP format -- proceed!
         Serial.print(F("Image size: "));
@@ -298,36 +375,38 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
 
         // If bmpHeight is negative, image is in top-down order.
         // This is not canon but has been observed in the wild.
-        if(bmpHeight < 0) {
+        if (bmpHeight < 0) {
           bmpHeight = -bmpHeight;
-          flip      = false;
+          flip = false;
         }
 
         // Crop area to be loaded
-        x2 = x + bmpWidth  - 1; // Lower-right corner
+        x2 = x + bmpWidth - 1; // Lower-right corner
         y2 = y + bmpHeight - 1;
-        if((x2 >= 0) && (y2 >= 0)) { // On screen?
+        if ((x2 >= 0) && (y2 >= 0)) { // On screen?
           w = bmpWidth; // Width/height of section to load/display
           h = bmpHeight;
           bx1 = by1 = 0; // UL coordinate in BMP file
-          if(x < 0) { // Clip left
+          if (x < 0) { // Clip left
             bx1 = -x;
-            x   = 0;
-            w   = x2 + 1;
+            x = 0;
+            w = x2 + 1;
           }
-          if(y < 0) { // Clip top
+          if (y < 0) { // Clip top
             by1 = -y;
-            y   = 0;
-            h   = y2 + 1;
+            y = 0;
+            h = y2 + 1;
           }
-          if(x2 >= tftDisplay.width())  w = tftDisplay.width()  - x; // Clip right
-          if(y2 >= tftDisplay.height()) h = tftDisplay.height() - y; // Clip bottom
+          if (x2 >= tftDisplay.width())
+            w = tftDisplay.width() - x; // Clip right
+          if (y2 >= tftDisplay.height())
+            h = tftDisplay.height() - y; // Clip bottom
 
           // Set tftDisplay address window to clipped image bounds
           tftDisplay.startWrite(); // Requires start/end transaction now
           tftDisplay.setAddrWindow(x, y, w, h);
 
-          for (row=0; row<h; row++) { // For each scanline...
+          for (row = 0; row < h; row++) { // For each scanline...
 
             // Seek to start of scan line.  It might seem labor-
             // intensive to be doing this on every line, but this
@@ -335,18 +414,19 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
             // and scanline padding.  Also, the seek only takes
             // place if the file position actually needs to change
             // (avoids a lot of cluster math in SD library).
-            if(flip) // Bitmap is stored bottom-to-top order (normal BMP)
+            if (flip) // Bitmap is stored bottom-to-top order (normal BMP)
               pos = bmpImageoffset + (bmpHeight - 1 - (row + by1)) * rowSize;
-            else     // Bitmap is stored top-to-bottom
+            else
+              // Bitmap is stored top-to-bottom
               pos = bmpImageoffset + (row + by1) * rowSize;
             pos += bx1 * 3; // Factor in starting column (bx1)
-            if(bmpFile.position() != pos) { // Need seek?
+            if (bmpFile.position() != pos) { // Need seek?
               tftDisplay.endWrite(); // End tftDisplay transaction
               bmpFile.seek(pos);
               buffidx = sizeof(sdbuffer); // Force buffer reload
               tftDisplay.startWrite(); // Start new tftDisplay transaction
             }
-            for (col=0; col<w; col++) { // For each pixel...
+            for (col = 0; col < w; col++) { // For each pixel...
               // Time to read more pixel data?
               if (buffidx >= sizeof(sdbuffer)) { // Indeed
                 tftDisplay.endWrite(); // End tftDisplay transaction
@@ -358,7 +438,7 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
               b = sdbuffer[buffidx++];
               g = sdbuffer[buffidx++];
               r = sdbuffer[buffidx++];
-              tftDisplay.writePixel(tftDisplay.color565(r,g,b));
+              tftDisplay.writePixel(tftDisplay.color565(r, g, b));
             } // end pixel
           } // end scanline
           tftDisplay.endWrite(); // End last tftDisplay transaction
@@ -371,7 +451,9 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
   }
 
   bmpFile.close();
-  if(!goodBmp) Serial.println(F("BMP format not recognized or SD not mounted"));
+  if (!goodBmp)
+    Serial.println(F("BMP format not recognized or SD not mounted"));
+  Serial.println();
 }
 
 // These read 16- and 32-bit types from the SD card file.
@@ -380,17 +462,17 @@ void bmpDraw(char *filename, int16_t x, int16_t y) {
 
 uint16_t read16(File &f) {
   uint16_t result;
-  ((uint8_t *)&result)[0] = f.read(); // LSB
-  ((uint8_t *)&result)[1] = f.read(); // MSB
+  ((uint8_t *) &result)[0] = f.read(); // LSB
+  ((uint8_t *) &result)[1] = f.read(); // MSB
   return result;
 }
 
 uint32_t read32(File &f) {
   uint32_t result;
-  ((uint8_t *)&result)[0] = f.read(); // LSB
-  ((uint8_t *)&result)[1] = f.read();
-  ((uint8_t *)&result)[2] = f.read();
-  ((uint8_t *)&result)[3] = f.read(); // MSB
+  ((uint8_t *) &result)[0] = f.read(); // LSB
+  ((uint8_t *) &result)[1] = f.read();
+  ((uint8_t *) &result)[2] = f.read();
+  ((uint8_t *) &result)[3] = f.read(); // MSB
   return result;
 }
 
