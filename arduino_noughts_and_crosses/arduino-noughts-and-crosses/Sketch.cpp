@@ -103,44 +103,43 @@ void drawBitmap(char fileInput, int16_t x, int16_t y) {
 
 	if ((x >= tftDisplay.width()) || (y >= tftDisplay.height())) return;
 
-	Serial.println();
-	Serial.print(F("Loading image '"));
-	Serial.print(filename);
-	Serial.println('\'');
+	SerialUSB.println();
+	SerialUSB.print(F("Loading image '"));
+	SerialUSB.print(filename);
+	SerialUSB.println('\'');
 
 	// Todo (BROKEN)
-
 	// Open requested file on SD card
 	if ((bmpFile = SD.open(filename))) {
-		Serial.println(F("File (maybe) not found"));
+		SerialUSB.println(F("File (maybe) not found"));
 		// return;
 	}
 
 	// Parse BMP header
-	Serial.println(F("Start parse"));
+	SerialUSB.println(F("Start parse"));
 	if (read16(bmpFile) == 0x4D42) { // BMP signature
-		Serial.print(F("File size: "));
-		Serial.println(read32(bmpFile));
+		SerialUSB.print(F("File size: "));
+		SerialUSB.println(read32(bmpFile));
 		(void) read32(bmpFile); // Read & ignore creator bytes
 		bmpImageoffset = read32(bmpFile); // Start of image data
-		Serial.print(F("Image Offset: "));
-		Serial.println(bmpImageoffset, DEC);
+		SerialUSB.print(F("Image Offset: "));
+		SerialUSB.println(bmpImageoffset, DEC);
 		// Read DIB header
-		Serial.print(F("Header size: "));
-		Serial.println(read32(bmpFile));
+		SerialUSB.print(F("Header size: "));
+		SerialUSB.println(read32(bmpFile));
 		bmpWidth = read32(bmpFile);
 		bmpHeight = read32(bmpFile);
 		if (read16(bmpFile) == 1) { // # planes -- must be '1'
 			bmpDepth = read16(bmpFile); // bits per pixel
-			Serial.print(F("Bit Depth: "));
-			Serial.println(bmpDepth);
+			SerialUSB.print(F("Bit Depth: "));
+			SerialUSB.println(bmpDepth);
 			if ((bmpDepth == 24) && (read32(bmpFile) == 0)) { // 0 = uncompressed
 
 				goodBmp = true; // Supported BMP format -- proceed!
-				Serial.print(F("Image size: "));
-				Serial.print(bmpWidth);
-				Serial.print('x');
-				Serial.println(bmpHeight);
+				SerialUSB.print(F("Image size: "));
+				SerialUSB.print(bmpWidth);
+				SerialUSB.print('x');
+				SerialUSB.println(bmpHeight);
 
 				// BMP rows are padded (if needed) to 4-byte boundary
 				rowSize = (bmpWidth * 3 + 3) & ~3;
@@ -213,17 +212,17 @@ void drawBitmap(char fileInput, int16_t x, int16_t y) {
 					} // end scanline
 					tftDisplay.endWrite(); // End last tftDisplay transaction
 				} // end onscreen
-				Serial.print(F("Loaded in "));
-				Serial.print(millis() - startTime);
-				Serial.println(F(" ms"));
+				SerialUSB.print(F("Loaded in "));
+				SerialUSB.print(millis() - startTime);
+				SerialUSB.println(F(" ms"));
 			} // end goodBmp
 		}
 	}
 
 	bmpFile.close();
 	if (!goodBmp)
-	Serial.println(F("BMP format not recognized or SD not mounted"));
-	Serial.println();
+	SerialUSB.println(F("BMP format not recognized or SD not mounted"));
+	SerialUSB.println();
 }
 
 TS_Point getPoint() {
@@ -237,10 +236,10 @@ TS_Point getPoint() {
 // Function allows recycling
 State addMove(uint8_t square, TS_Point marker, State player) {
 	char bitmap;
-	Serial.print(F("addMove, player = "));
-	Serial.println(player);
+	SerialUSB.print(F("addMove, player = "));
+	SerialUSB.println(player);
 	if (player == cross) {
-		Serial.println(F("this might be a cross"));
+		SerialUSB.println(F("this might be a cross"));
 		if (square % 2) {
 			bitmap = 'j';
 			} else {
@@ -249,7 +248,7 @@ State addMove(uint8_t square, TS_Point marker, State player) {
 		player = nought;
 		drawBitmap(bitmap, marker.x, marker.y);
 		} else {
-		Serial.println(F("this might be a nought"));
+		SerialUSB.println(F("this might be a nought"));
 		if (square % 2) {
 			bitmap = 'h';
 			} else {
@@ -288,7 +287,7 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
 			if (!touchScreen.touched()) continue;
 			TS_Point point = getPoint();
 			if (verbose)
-			Serial.println(
+			SerialUSB.println(
 			(String) F("screen pressed at: (") + (String) point.x + ","
 			+ (String) point.y + (String) F(")"));
 			if (point.y > 79 and point.y < 161) {
@@ -346,12 +345,13 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
 		// Check to see if someone has won
 		for (uint8_t i = 0; i < 8; i++) {
 			if (boardState[winIndexes[i][0]] == boardState[winIndexes[i][1]]
-			and boardState[winIndexes[i][0]] == boardState[winIndexes[i][2]]) {
+			and boardState[winIndexes[i][0]] == boardState[winIndexes[i][2]]
+			and boardState[winIndexes[i][0]] != empty) {
 				winner = boardState[winIndexes[i][0]];
 			}
 		}
-		Serial.print(F("winner = "));
-		Serial.println(winner);
+		SerialUSB.print(F("winner = "));
+		SerialUSB.println(winner);
 		if (!(winner == empty)) break;
 		delay(100);
 	}
@@ -423,21 +423,21 @@ void startScreen() {
 
 void setup() {
 
-	Serial.begin(9600);
+	SerialUSB.begin(9600);
 
 	tftDisplay.begin();
 
 	if (!touchScreen.begin()) {
-		Serial.println(F("Couldn't start FT6206 touchscreen controller"));
-		Serial.println(F("Driver might not have been found"));
+		SerialUSB.println(F("Couldn't start FT6206 touchscreen controller"));
+		SerialUSB.println(F("Driver might not have been found"));
 		while (true);
 	}
 
-	if (verbose) Serial.println(F("Display and touchscreen started"));
+	if (verbose) SerialUSB.println(F("Display and touchscreen started"));
 
 	if (!SD.begin(SD_CS)) {
-		Serial.println(F("Failed to initialise SD card"));
-	} else if (verbose) Serial.println(F("SD card mounted"));
+		SerialUSB.println(F("Failed to initialise SD card"));
+	} else if (verbose) SerialUSB.println(F("SD card mounted"));
 
 	// tests();
 
@@ -451,9 +451,9 @@ void loop() {
 
 	//  TS_Point point = getPoint();
 	//
-	//  Serial.println(
+	//  SerialUSB.println(
 	//      "screen pressed at: (" + (String) point.x + "," + (String) point.y + ")");
-	Serial.println(F("loooop"));
+	SerialUSB.println(F("loooop"));
 	delay(100);
 
 }
