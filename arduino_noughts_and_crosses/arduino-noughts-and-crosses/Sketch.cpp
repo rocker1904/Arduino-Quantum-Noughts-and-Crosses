@@ -396,6 +396,10 @@ void playMatch(int maxGames) {
 		
 		// If there are still games to be played draw win banner,
 		// otherwise draw end game screen
+		
+		// SHOULD CHECK TO SEE IF SOMEONE HAS WON
+		// TODO
+		uint8_t gamesToWin = (maxGames / 2) + 1;
 		if (gamesPlayed < maxGames) {
 			drawBitmap(bitmap, 0, 110);
 			while (true)
@@ -417,7 +421,7 @@ void playMatch(int maxGames) {
 }
 
 void startScreen() {
-	uint8_t maxGames = 5;
+	uint8_t maxGames = 3;
 	drawBitmap('l', 0, 0);
 
 	while (true) {
@@ -426,14 +430,16 @@ void startScreen() {
 			if (point.x > 24 and point.x < 216 and point.y > 204 and point.y < 256) {
 				// They pressed the start button
 				break;
-				} else {
+			} else {
+				// Check for "best of: x" change
+				// TODO
 				continue;
 			}
-			} else {
+		} else {
 			continue;
 		}
 	}
-
+	
 	playMatch(maxGames);
 
 }
