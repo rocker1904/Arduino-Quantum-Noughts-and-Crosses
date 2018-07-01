@@ -27,11 +27,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  11 .debug_line   00019394  00000000  00000000  0011218d  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_str    00087594  00000000  00000000  0012b521  2**0
+ 12 .debug_str    000875f3  00000000  00000000  0012b521  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_frame  0000400c  00000000  00000000  001b2ab8  2**2
+ 13 .debug_frame  0000400c  00000000  00000000  001b2b14  2**2
                   CONTENTS, READONLY, DEBUGGING
- 14 .stabstr      000001b9  00000000  00000000  001b6ac4  2**0
+ 14 .stabstr      000001b9  00000000  00000000  001b6b20  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -261,13 +261,13 @@ Adafruit_FT6206 touchScreen = Adafruit_FT6206();
 000001e8 <_Z10drawBitmapcss>:
 void drawBitmap(char fileInput, int16_t x, int16_t y) {
      1e8:	b5f0      	push	{r4, r5, r6, r7, lr}
-     1ea:	b0a7      	sub	sp, #156	; 0x9c
+     1ea:	b0d5      	sub	sp, #340	; 0x154
 	File bmpFile;
-     1ec:	ac0e      	add	r4, sp, #56	; 0x38
+     1ec:	ad0f      	add	r5, sp, #60	; 0x3c
 void drawBitmap(char fileInput, int16_t x, int16_t y) {
-     1ee:	0005      	movs	r5, r0
+     1ee:	0004      	movs	r4, r0
 	File bmpFile;
-     1f0:	0020      	movs	r0, r4
+     1f0:	0028      	movs	r0, r5
 void drawBitmap(char fileInput, int16_t x, int16_t y) {
      1f2:	9102      	str	r1, [sp, #8]
      1f4:	9203      	str	r2, [sp, #12]
@@ -276,7 +276,7 @@ void drawBitmap(char fileInput, int16_t x, int16_t y) {
 	uint32_t pos = 0, startTime = millis();
      1fa:	f000 fb9f 	bl	93c <millis>
 	char filename[6] = {fileInput, '.', 'b', 'm', 'p'};
-     1fe:	ae0c      	add	r6, sp, #48	; 0x30
+     1fe:	ae0d      	add	r6, sp, #52	; 0x34
 	uint32_t pos = 0, startTime = millis();
      200:	900a      	str	r0, [sp, #40]	; 0x28
 	char filename[6] = {fileInput, '.', 'b', 'm', 'p'};
@@ -285,17 +285,17 @@ void drawBitmap(char fileInput, int16_t x, int16_t y) {
      206:	0030      	movs	r0, r6
      208:	f005 fc62 	bl	5ad0 <memset>
      20c:	232e      	movs	r3, #46	; 0x2e
-     20e:	7035      	strb	r5, [r6, #0]
+     20e:	7034      	strb	r4, [r6, #0]
      210:	7073      	strb	r3, [r6, #1]
 	if ((x >= tftDisplay.width()) || (y >= tftDisplay.height())) return;
-     212:	4dc2      	ldr	r5, [pc, #776]	; (51c <_Z10drawBitmapcss+0x334>)
+     212:	4cc2      	ldr	r4, [pc, #776]	; (51c <_Z10drawBitmapcss+0x334>)
 	char filename[6] = {fileInput, '.', 'b', 'm', 'p'};
      214:	3334      	adds	r3, #52	; 0x34
      216:	70b3      	strb	r3, [r6, #2]
      218:	330b      	adds	r3, #11
      21a:	70f3      	strb	r3, [r6, #3]
 	if ((x >= tftDisplay.width()) || (y >= tftDisplay.height())) return;
-     21c:	0028      	movs	r0, r5
+     21c:	0020      	movs	r0, r4
 	char filename[6] = {fileInput, '.', 'b', 'm', 'p'};
      21e:	3303      	adds	r3, #3
      220:	7133      	strb	r3, [r6, #4]
@@ -304,29 +304,29 @@ void drawBitmap(char fileInput, int16_t x, int16_t y) {
      226:	9b02      	ldr	r3, [sp, #8]
      228:	4298      	cmp	r0, r3
      22a:	dd4b      	ble.n	2c4 <_Z10drawBitmapcss+0xdc>
-     22c:	0028      	movs	r0, r5
+     22c:	0020      	movs	r0, r4
      22e:	f004 fd88 	bl	4d42 <_ZNK12Adafruit_GFX6heightEv>
      232:	9b03      	ldr	r3, [sp, #12]
      234:	4298      	cmp	r0, r3
      236:	dd45      	ble.n	2c4 <_Z10drawBitmapcss+0xdc>
 	SerialUSB.println();
-     238:	4db9      	ldr	r5, [pc, #740]	; (520 <_Z10drawBitmapcss+0x338>)
+     238:	4cb9      	ldr	r4, [pc, #740]	; (520 <_Z10drawBitmapcss+0x338>)
 	if ((bmpFile = SD.open(filename))) {
-     23a:	af17      	add	r7, sp, #92	; 0x5c
+     23a:	af18      	add	r7, sp, #96	; 0x60
 	SerialUSB.println();
-     23c:	0028      	movs	r0, r5
+     23c:	0020      	movs	r0, r4
      23e:	f000 fbf1 	bl	a24 <_ZN5Print7printlnEv>
 	SerialUSB.print(F("Loading image '"));
      242:	49b8      	ldr	r1, [pc, #736]	; (524 <_Z10drawBitmapcss+0x33c>)
-     244:	0028      	movs	r0, r5
+     244:	0020      	movs	r0, r4
      246:	f000 fbe0 	bl	a0a <_ZN5Print5printEPK19__FlashStringHelper>
 	SerialUSB.print(filename);
      24a:	0031      	movs	r1, r6
-     24c:	0028      	movs	r0, r5
+     24c:	0020      	movs	r0, r4
      24e:	f000 fbe0 	bl	a12 <_ZN5Print5printEPKc>
 	SerialUSB.println('\'');
      252:	2127      	movs	r1, #39	; 0x27
-     254:	0028      	movs	r0, r5
+     254:	0020      	movs	r0, r4
      256:	f000 fbf7 	bl	a48 <_ZN5Print7printlnEc>
 	if ((bmpFile = SD.open(filename))) {
      25a:	2301      	movs	r3, #1
@@ -340,8 +340,8 @@ void drawBitmap(char fileInput, int16_t x, int16_t y) {
 #define BIN 2
 
 class Print
-     266:	9b18      	ldr	r3, [sp, #96]	; 0x60
-     268:	6063      	str	r3, [r4, #4]
+     266:	9b19      	ldr	r3, [sp, #100]	; 0x64
+     268:	606b      	str	r3, [r5, #4]
     SKIP_WHITESPACE // Only tabs, spaces, line feeds & carriage returns are skipped.
 };
 
@@ -349,9 +349,9 @@ class Print
 
 class Stream : public Print
      26a:	68bb      	ldr	r3, [r7, #8]
-     26c:	60a3      	str	r3, [r4, #8]
+     26c:	60ab      	str	r3, [r5, #8]
      26e:	68fb      	ldr	r3, [r7, #12]
-     270:	60e3      	str	r3, [r4, #12]
+     270:	60eb      	str	r3, [r5, #12]
      272:	2310      	movs	r3, #16
 #define FILE_READ O_READ
 #define FILE_WRITE (O_READ | O_WRITE | O_CREAT | O_APPEND)
@@ -360,26 +360,26 @@ namespace SDLib {
 
 class File : public Stream {
      274:	5cfa      	ldrb	r2, [r7, r3]
-     276:	551a      	strb	r2, [r3, r4]
+     276:	54ea      	strb	r2, [r5, r3]
      278:	3301      	adds	r3, #1
      27a:	2b1d      	cmp	r3, #29
      27c:	d1fa      	bne.n	274 <_Z10drawBitmapcss+0x8c>
      27e:	6a3b      	ldr	r3, [r7, #32]
-     280:	0020      	movs	r0, r4
-     282:	6223      	str	r3, [r4, #32]
+     280:	0028      	movs	r0, r5
+     282:	622b      	str	r3, [r5, #32]
      284:	f002 fdbb 	bl	2dfe <_ZN5SDLib4FilecvbEv>
      288:	2800      	cmp	r0, #0
      28a:	d003      	beq.n	294 <_Z10drawBitmapcss+0xac>
 		SerialUSB.println(F("File (maybe) not found"));
      28c:	49a7      	ldr	r1, [pc, #668]	; (52c <_Z10drawBitmapcss+0x344>)
-     28e:	0028      	movs	r0, r5
+     28e:	0020      	movs	r0, r4
      290:	f000 fbd0 	bl	a34 <_ZN5Print7printlnEPK19__FlashStringHelper>
 	SerialUSB.println(F("Start parse"));
      294:	49a6      	ldr	r1, [pc, #664]	; (530 <_Z10drawBitmapcss+0x348>)
-     296:	0028      	movs	r0, r5
+     296:	0020      	movs	r0, r4
      298:	f000 fbcc 	bl	a34 <_ZN5Print7printlnEPK19__FlashStringHelper>
 	if (read16(bmpFile) == 0x4D42) { // BMP signature
-     29c:	0020      	movs	r0, r4
+     29c:	0028      	movs	r0, r5
      29e:	f7ff ff39 	bl	114 <_Z6read16RN5SDLib4FileE>
      2a2:	4ba4      	ldr	r3, [pc, #656]	; (534 <_Z10drawBitmapcss+0x34c>)
      2a4:	4298      	cmp	r0, r3
@@ -387,7 +387,7 @@ class File : public Stream {
 	boolean goodBmp = false;       // Set to true on valid header parse
      2a8:	2500      	movs	r5, #0
 	bmpFile.close();
-     2aa:	a80e      	add	r0, sp, #56	; 0x38
+     2aa:	a80f      	add	r0, sp, #60	; 0x3c
      2ac:	f002 fd9a 	bl	2de4 <_ZN5SDLib4File5closeEv>
      2b0:	4c9b      	ldr	r4, [pc, #620]	; (520 <_Z10drawBitmapcss+0x338>)
 	if (!goodBmp)
@@ -401,101 +401,101 @@ class File : public Stream {
      2be:	0020      	movs	r0, r4
      2c0:	f000 fbb0 	bl	a24 <_ZN5Print7printlnEv>
 }
-     2c4:	b027      	add	sp, #156	; 0x9c
+     2c4:	b055      	add	sp, #340	; 0x154
      2c6:	bdf0      	pop	{r4, r5, r6, r7, pc}
 		SerialUSB.print(F("File size: "));
      2c8:	499c      	ldr	r1, [pc, #624]	; (53c <_Z10drawBitmapcss+0x354>)
-     2ca:	0028      	movs	r0, r5
+     2ca:	0020      	movs	r0, r4
      2cc:	f000 fb9d 	bl	a0a <_ZN5Print5printEPK19__FlashStringHelper>
 		SerialUSB.println(read32(bmpFile));
-     2d0:	0020      	movs	r0, r4
+     2d0:	0028      	movs	r0, r5
      2d2:	f7ff ff2e 	bl	132 <_Z6read32RN5SDLib4FileE>
      2d6:	220a      	movs	r2, #10
      2d8:	0001      	movs	r1, r0
-     2da:	0028      	movs	r0, r5
+     2da:	0020      	movs	r0, r4
      2dc:	f000 fc2d 	bl	b3a <_ZN5Print7printlnEmi>
 		(void) read32(bmpFile); // Read & ignore creator bytes
-     2e0:	0020      	movs	r0, r4
+     2e0:	0028      	movs	r0, r5
      2e2:	f7ff ff26 	bl	132 <_Z6read32RN5SDLib4FileE>
 		bmpImageoffset = read32(bmpFile); // Start of image data
-     2e6:	0020      	movs	r0, r4
+     2e6:	0028      	movs	r0, r5
      2e8:	f7ff ff23 	bl	132 <_Z6read32RN5SDLib4FileE>
 		SerialUSB.print(F("Image Offset: "));
      2ec:	4994      	ldr	r1, [pc, #592]	; (540 <_Z10drawBitmapcss+0x358>)
 		bmpImageoffset = read32(bmpFile); // Start of image data
      2ee:	9007      	str	r0, [sp, #28]
 		SerialUSB.print(F("Image Offset: "));
-     2f0:	0028      	movs	r0, r5
+     2f0:	0020      	movs	r0, r4
      2f2:	f000 fb8a 	bl	a0a <_ZN5Print5printEPK19__FlashStringHelper>
 		SerialUSB.println(bmpImageoffset, DEC);
      2f6:	220a      	movs	r2, #10
      2f8:	9907      	ldr	r1, [sp, #28]
-     2fa:	0028      	movs	r0, r5
+     2fa:	0020      	movs	r0, r4
      2fc:	f000 fc1d 	bl	b3a <_ZN5Print7printlnEmi>
 		SerialUSB.print(F("Header size: "));
      300:	4990      	ldr	r1, [pc, #576]	; (544 <_Z10drawBitmapcss+0x35c>)
-     302:	0028      	movs	r0, r5
+     302:	0020      	movs	r0, r4
      304:	f000 fb81 	bl	a0a <_ZN5Print5printEPK19__FlashStringHelper>
 		SerialUSB.println(read32(bmpFile));
-     308:	0020      	movs	r0, r4
+     308:	0028      	movs	r0, r5
      30a:	f7ff ff12 	bl	132 <_Z6read32RN5SDLib4FileE>
      30e:	220a      	movs	r2, #10
      310:	0001      	movs	r1, r0
-     312:	0028      	movs	r0, r5
+     312:	0020      	movs	r0, r4
      314:	f000 fc11 	bl	b3a <_ZN5Print7printlnEmi>
 		bmpWidth = read32(bmpFile);
-     318:	0020      	movs	r0, r4
+     318:	0028      	movs	r0, r5
      31a:	f7ff ff0a 	bl	132 <_Z6read32RN5SDLib4FileE>
      31e:	9006      	str	r0, [sp, #24]
 		bmpHeight = read32(bmpFile);
-     320:	0020      	movs	r0, r4
+     320:	0028      	movs	r0, r5
      322:	f7ff ff06 	bl	132 <_Z6read32RN5SDLib4FileE>
      326:	0007      	movs	r7, r0
 		if (read16(bmpFile) == 1) { // # planes -- must be '1'
-     328:	0020      	movs	r0, r4
+     328:	0028      	movs	r0, r5
      32a:	f7ff fef3 	bl	114 <_Z6read16RN5SDLib4FileE>
      32e:	9004      	str	r0, [sp, #16]
      330:	2801      	cmp	r0, #1
      332:	d1b9      	bne.n	2a8 <_Z10drawBitmapcss+0xc0>
 			bmpDepth = read16(bmpFile); // bits per pixel
-     334:	0020      	movs	r0, r4
+     334:	0028      	movs	r0, r5
      336:	f7ff feed 	bl	114 <_Z6read16RN5SDLib4FileE>
 			SerialUSB.print(F("Bit Depth: "));
      33a:	4983      	ldr	r1, [pc, #524]	; (548 <_Z10drawBitmapcss+0x360>)
 			bmpDepth = read16(bmpFile); // bits per pixel
      33c:	b2c6      	uxtb	r6, r0
 			SerialUSB.print(F("Bit Depth: "));
-     33e:	0028      	movs	r0, r5
+     33e:	0020      	movs	r0, r4
      340:	f000 fb63 	bl	a0a <_ZN5Print5printEPK19__FlashStringHelper>
 			SerialUSB.println(bmpDepth);
      344:	220a      	movs	r2, #10
      346:	0031      	movs	r1, r6
-     348:	0028      	movs	r0, r5
+     348:	0020      	movs	r0, r4
      34a:	f000 fbec 	bl	b26 <_ZN5Print7printlnEhi>
 			if ((bmpDepth == 24) && (read32(bmpFile) == 0)) { // 0 = uncompressed
      34e:	2e18      	cmp	r6, #24
      350:	d1aa      	bne.n	2a8 <_Z10drawBitmapcss+0xc0>
-     352:	0020      	movs	r0, r4
+     352:	0028      	movs	r0, r5
      354:	f7ff feed 	bl	132 <_Z6read32RN5SDLib4FileE>
-     358:	1e04      	subs	r4, r0, #0
+     358:	1e05      	subs	r5, r0, #0
      35a:	d1a5      	bne.n	2a8 <_Z10drawBitmapcss+0xc0>
 				SerialUSB.print(F("Image size: "));
      35c:	497b      	ldr	r1, [pc, #492]	; (54c <_Z10drawBitmapcss+0x364>)
-     35e:	0028      	movs	r0, r5
+     35e:	0020      	movs	r0, r4
      360:	f000 fb53 	bl	a0a <_ZN5Print5printEPK19__FlashStringHelper>
 				SerialUSB.print(bmpWidth);
      364:	220a      	movs	r2, #10
      366:	9906      	ldr	r1, [sp, #24]
-     368:	0028      	movs	r0, r5
+     368:	0020      	movs	r0, r4
      36a:	f000 fbc2 	bl	af2 <_ZN5Print5printEii>
 				SerialUSB.print('x');
      36e:	2178      	movs	r1, #120	; 0x78
-     370:	0028      	movs	r0, r5
+     370:	0020      	movs	r0, r4
      372:	f000 fb52 	bl	a1a <_ZN5Print5printEc>
 				SerialUSB.println(bmpHeight);
      376:	220a      	movs	r2, #10
      378:	0039      	movs	r1, r7
-     37a:	0028      	movs	r0, r5
+     37a:	0020      	movs	r0, r4
      37c:	f000 fbbd 	bl	afa <_ZN5Print7printlnEii>
 				if (bmpHeight < 0) {
      380:	2f00      	cmp	r7, #0
@@ -507,7 +507,7 @@ class File : public Stream {
 					bmpHeight = -bmpHeight;
      38a:	427f      	negs	r7, r7
 					flip = false;
-     38c:	9408      	str	r4, [sp, #32]
+     38c:	9508      	str	r5, [sp, #32]
 				x2 = x + bmpWidth - 1; // Lower-right corner
      38e:	9a02      	ldr	r2, [sp, #8]
      390:	9b06      	ldr	r3, [sp, #24]
@@ -608,7 +608,7 @@ class File : public Stream {
      436:	435f      	muls	r7, r3
      438:	9b07      	ldr	r3, [sp, #28]
 	uint8_t buffidx = sizeof(sdbuffer); // Current position in sdbuffer
-     43a:	3439      	adds	r4, #57	; 0x39
+     43a:	34ed      	adds	r4, #237	; 0xed
      43c:	18ff      	adds	r7, r7, r3
      43e:	9b06      	ldr	r3, [sp, #24]
      440:	435e      	muls	r6, r3
@@ -632,7 +632,7 @@ class File : public Stream {
 						pos += bx1 * 3; // Factor in starting column (bx1)
      45a:	9b03      	ldr	r3, [sp, #12]
 						if (bmpFile.position() != pos) { // Need seek?
-     45c:	a80e      	add	r0, sp, #56	; 0x38
+     45c:	a80f      	add	r0, sp, #60	; 0x3c
 						pos += bx1 * 3; // Factor in starting column (bx1)
      45e:	18ed      	adds	r5, r5, r3
 						if (bmpFile.position() != pos) { // Need seek?
@@ -645,29 +645,29 @@ class File : public Stream {
      46c:	f002 f84e 	bl	250c <_ZN16Adafruit_ILI93418endWriteEv>
 							bmpFile.seek(pos);
      470:	0029      	movs	r1, r5
-     472:	a80e      	add	r0, sp, #56	; 0x38
+     472:	a80f      	add	r0, sp, #60	; 0x3c
      474:	f002 fc8b 	bl	2d8e <_ZN5SDLib4File4seekEm>
 							tftDisplay.startWrite(); // Start new tftDisplay transaction
      478:	0020      	movs	r0, r4
      47a:	f002 f829 	bl	24d0 <_ZN16Adafruit_ILI934110startWriteEv>
 							buffidx = sizeof(sdbuffer); // Force buffer reload
-     47e:	243c      	movs	r4, #60	; 0x3c
+     47e:	24f0      	movs	r4, #240	; 0xf0
      480:	2500      	movs	r5, #0
 						for (col = 0; col < w; col++) { // For each pixel...
      482:	9b04      	ldr	r3, [sp, #16]
      484:	42ab      	cmp	r3, r5
      486:	dd29      	ble.n	4dc <_Z10drawBitmapcss+0x2f4>
 							if (buffidx >= sizeof(sdbuffer)) { // Indeed
-     488:	2c3b      	cmp	r4, #59	; 0x3b
+     488:	2cef      	cmp	r4, #239	; 0xef
      48a:	d90c      	bls.n	4a6 <_Z10drawBitmapcss+0x2be>
 								tftDisplay.endWrite(); // End tftDisplay transaction
      48c:	4c23      	ldr	r4, [pc, #140]	; (51c <_Z10drawBitmapcss+0x334>)
      48e:	0020      	movs	r0, r4
      490:	f002 f83c 	bl	250c <_ZN16Adafruit_ILI93418endWriteEv>
 								bmpFile.read(sdbuffer, sizeof(sdbuffer));
-     494:	223c      	movs	r2, #60	; 0x3c
-     496:	a917      	add	r1, sp, #92	; 0x5c
-     498:	a80e      	add	r0, sp, #56	; 0x38
+     494:	22f0      	movs	r2, #240	; 0xf0
+     496:	a918      	add	r1, sp, #96	; 0x60
+     498:	a80f      	add	r0, sp, #60	; 0x3c
      49a:	f002 fc71 	bl	2d80 <_ZN5SDLib4File4readEPvt>
 								tftDisplay.startWrite(); // Start new tftDisplay transaction
      49e:	0020      	movs	r0, r4
@@ -678,7 +678,7 @@ class File : public Stream {
      4a6:	1ca1      	adds	r1, r4, #2
 							b = sdbuffer[buffidx++];
      4a8:	1c62      	adds	r2, r4, #1
-     4aa:	a817      	add	r0, sp, #92	; 0x5c
+     4aa:	a818      	add	r0, sp, #96	; 0x60
 							g = sdbuffer[buffidx++];
      4ac:	b2c9      	uxtb	r1, r1
      4ae:	b2d2      	uxtb	r2, r2
@@ -910,8 +910,8 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
      646:	27af      	movs	r7, #175	; 0xaf
 	uint8_t placedCounters = 0;
      648:	9301      	str	r3, [sp, #4]
-	State player = nought;
-     64a:	3301      	adds	r3, #1
+	State player = cross;
+     64a:	3302      	adds	r3, #2
      64c:	9300      	str	r3, [sp, #0]
 	while (placedCounters < 9) {
      64e:	9b01      	ldr	r3, [sp, #4]
@@ -4691,38 +4691,60 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     23de:	bd10      	pop	{r4, pc}
 
 000023e0 <_ZN16Adafruit_ILI934114writeFastVLineEssst>:
+    int32_t len = (int32_t)w * h;
+    setAddrWindow(x, y, w, h);
+    writeColor(color, len);
+}
+
+void Adafruit_ILI9341::writeFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color){
     23e0:	b537      	push	{r0, r1, r2, r4, r5, lr}
     23e2:	ac06      	add	r4, sp, #24
     23e4:	8825      	ldrh	r5, [r4, #0]
+    writeFillRect(x, y, 1, h, color);
     23e6:	6804      	ldr	r4, [r0, #0]
     23e8:	9501      	str	r5, [sp, #4]
     23ea:	9300      	str	r3, [sp, #0]
     23ec:	69e4      	ldr	r4, [r4, #28]
     23ee:	2301      	movs	r3, #1
     23f0:	47a0      	blx	r4
+}
     23f2:	bd37      	pop	{r0, r1, r2, r4, r5, pc}
 
 000023f4 <_ZN16Adafruit_ILI934114writeFastHLineEssst>:
+
+void Adafruit_ILI9341::writeFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color){
     23f4:	b537      	push	{r0, r1, r2, r4, r5, lr}
     23f6:	ac06      	add	r4, sp, #24
     23f8:	8825      	ldrh	r5, [r4, #0]
+    writeFillRect(x, y, w, 1, color);
     23fa:	6804      	ldr	r4, [r0, #0]
     23fc:	9501      	str	r5, [sp, #4]
     23fe:	2501      	movs	r5, #1
     2400:	9500      	str	r5, [sp, #0]
     2402:	69e4      	ldr	r4, [r4, #28]
     2404:	47a0      	blx	r4
+}
     2406:	bd37      	pop	{r0, r1, r2, r4, r5, pc}
 
 00002408 <_ZN16Adafruit_ILI93419drawPixelEsst>:
+    endWrite();
+    _freq = freq;
+    return r;
+}
+
+void Adafruit_ILI9341::drawPixel(int16_t x, int16_t y, uint16_t color){
     2408:	b5f7      	push	{r0, r1, r2, r4, r5, r6, r7, lr}
     240a:	0004      	movs	r4, r0
     240c:	0016      	movs	r6, r2
     240e:	001f      	movs	r7, r3
+    startWrite();
     2410:	6803      	ldr	r3, [r0, #0]
+void Adafruit_ILI9341::drawPixel(int16_t x, int16_t y, uint16_t color){
     2412:	9101      	str	r1, [sp, #4]
+    startWrite();
     2414:	695b      	ldr	r3, [r3, #20]
     2416:	4798      	blx	r3
+    writePixel(x, y, color);
     2418:	6823      	ldr	r3, [r4, #0]
     241a:	0032      	movs	r2, r6
     241c:	699d      	ldr	r5, [r3, #24]
@@ -4730,13 +4752,18 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2420:	003b      	movs	r3, r7
     2422:	0020      	movs	r0, r4
     2424:	47a8      	blx	r5
+    endWrite();
     2426:	6823      	ldr	r3, [r4, #0]
     2428:	0020      	movs	r0, r4
     242a:	6adb      	ldr	r3, [r3, #44]	; 0x2c
     242c:	4798      	blx	r3
+}
     242e:	bdf7      	pop	{r0, r1, r2, r4, r5, r6, r7, pc}
 
 00002430 <_ZN16Adafruit_ILI934113drawFastVLineEssst>:
+
+void Adafruit_ILI9341::drawFastVLine(int16_t x, int16_t y,
+        int16_t h, uint16_t color) {
     2430:	b5f0      	push	{r4, r5, r6, r7, lr}
     2432:	0004      	movs	r4, r0
     2434:	0016      	movs	r6, r2
@@ -4744,10 +4771,14 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2438:	b085      	sub	sp, #20
     243a:	ab0a      	add	r3, sp, #40	; 0x28
     243c:	881d      	ldrh	r5, [r3, #0]
+    startWrite();
     243e:	6803      	ldr	r3, [r0, #0]
+        int16_t h, uint16_t color) {
     2440:	9103      	str	r1, [sp, #12]
+    startWrite();
     2442:	695b      	ldr	r3, [r3, #20]
     2444:	4798      	blx	r3
+    writeFastVLine(x, y, h, color);
     2446:	6823      	ldr	r3, [r4, #0]
     2448:	9500      	str	r5, [sp, #0]
     244a:	6a1d      	ldr	r5, [r3, #32]
@@ -4756,14 +4787,19 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2450:	9903      	ldr	r1, [sp, #12]
     2452:	0020      	movs	r0, r4
     2454:	47a8      	blx	r5
+    endWrite();
     2456:	6823      	ldr	r3, [r4, #0]
     2458:	0020      	movs	r0, r4
     245a:	6adb      	ldr	r3, [r3, #44]	; 0x2c
     245c:	4798      	blx	r3
+}
     245e:	b005      	add	sp, #20
     2460:	bdf0      	pop	{r4, r5, r6, r7, pc}
 
 00002462 <_ZN16Adafruit_ILI934113drawFastHLineEssst>:
+
+void Adafruit_ILI9341::drawFastHLine(int16_t x, int16_t y,
+        int16_t w, uint16_t color) {
     2462:	b5f0      	push	{r4, r5, r6, r7, lr}
     2464:	0004      	movs	r4, r0
     2466:	0016      	movs	r6, r2
@@ -4771,10 +4807,14 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     246a:	b085      	sub	sp, #20
     246c:	ab0a      	add	r3, sp, #40	; 0x28
     246e:	881d      	ldrh	r5, [r3, #0]
+    startWrite();
     2470:	6803      	ldr	r3, [r0, #0]
+        int16_t w, uint16_t color) {
     2472:	9103      	str	r1, [sp, #12]
+    startWrite();
     2474:	695b      	ldr	r3, [r3, #20]
     2476:	4798      	blx	r3
+    writeFastHLine(x, y, w, color);
     2478:	6823      	ldr	r3, [r4, #0]
     247a:	9500      	str	r5, [sp, #0]
     247c:	6a5d      	ldr	r5, [r3, #36]	; 0x24
@@ -4783,14 +4823,19 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2482:	9903      	ldr	r1, [sp, #12]
     2484:	0020      	movs	r0, r4
     2486:	47a8      	blx	r5
+    endWrite();
     2488:	6823      	ldr	r3, [r4, #0]
     248a:	0020      	movs	r0, r4
     248c:	6adb      	ldr	r3, [r3, #44]	; 0x2c
     248e:	4798      	blx	r3
+}
     2490:	b005      	add	sp, #20
     2492:	bdf0      	pop	{r4, r5, r6, r7, pc}
 
 00002494 <_ZN16Adafruit_ILI93418fillRectEsssst>:
+
+void Adafruit_ILI9341::fillRect(int16_t x, int16_t y, int16_t w, int16_t h,
+        uint16_t color) {
     2494:	b5f0      	push	{r4, r5, r6, r7, lr}
     2496:	0004      	movs	r4, r0
     2498:	001d      	movs	r5, r3
@@ -4800,11 +4845,15 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     24a0:	5f9e      	ldrsh	r6, [r3, r6]
     24a2:	ab0b      	add	r3, sp, #44	; 0x2c
     24a4:	881f      	ldrh	r7, [r3, #0]
+    startWrite();
     24a6:	6803      	ldr	r3, [r0, #0]
+        uint16_t color) {
     24a8:	9102      	str	r1, [sp, #8]
     24aa:	9203      	str	r2, [sp, #12]
+    startWrite();
     24ac:	695b      	ldr	r3, [r3, #20]
     24ae:	4798      	blx	r3
+    writeFillRect(x,y,w,h,color);
     24b0:	6823      	ldr	r3, [r4, #0]
     24b2:	9701      	str	r7, [sp, #4]
     24b4:	9600      	str	r6, [sp, #0]
@@ -4814,60 +4863,87 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     24bc:	9902      	ldr	r1, [sp, #8]
     24be:	0020      	movs	r0, r4
     24c0:	47b0      	blx	r6
+    endWrite();
     24c2:	6823      	ldr	r3, [r4, #0]
     24c4:	0020      	movs	r0, r4
     24c6:	6adb      	ldr	r3, [r3, #44]	; 0x2c
     24c8:	4798      	blx	r3
+}
     24ca:	b005      	add	sp, #20
     24cc:	bdf0      	pop	{r4, r5, r6, r7, pc}
 	...
 
 000024d0 <_ZN16Adafruit_ILI934110startWriteEv>:
+    SPI_BEGIN_TRANSACTION();
     24d0:	6b03      	ldr	r3, [r0, #48]	; 0x30
+void Adafruit_ILI9341::startWrite(void){
     24d2:	b513      	push	{r0, r1, r4, lr}
     24d4:	0004      	movs	r4, r0
+    SPI_BEGIN_TRANSACTION();
     24d6:	2b00      	cmp	r3, #0
     24d8:	da0d      	bge.n	24f6 <_ZN16Adafruit_ILI934110startWriteEv+0x26>
+  void init_MightInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
+    init_AlwaysInline(clock, bitOrder, dataMode);
+  }
+
+  void init_AlwaysInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
+    this->clockFreq = (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER) ? F_CPU / SPI_MIN_CLOCK_DIVIDER : clock);
     24da:	6a01      	ldr	r1, [r0, #32]
     24dc:	4b09      	ldr	r3, [pc, #36]	; (2504 <_ZN16Adafruit_ILI934110startWriteEv+0x34>)
     24de:	4299      	cmp	r1, r3
     24e0:	d900      	bls.n	24e4 <_ZN16Adafruit_ILI934110startWriteEv+0x14>
     24e2:	0019      	movs	r1, r3
+
+    this->bitOrder = (bitOrder == MSBFIRST ? MSB_FIRST : LSB_FIRST);
     24e4:	466a      	mov	r2, sp
     24e6:	2300      	movs	r3, #0
     24e8:	7153      	strb	r3, [r2, #5]
+
+    switch (dataMode)
+    {
+      case SPI_MODE0:
+        this->dataMode = SERCOM_SPI_MODE_0; break;
     24ea:	7113      	strb	r3, [r2, #4]
     24ec:	9a01      	ldr	r2, [sp, #4]
     24ee:	4806      	ldr	r0, [pc, #24]	; (2508 <_ZN16Adafruit_ILI934110startWriteEv+0x38>)
+    this->clockFreq = (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER) ? F_CPU / SPI_MIN_CLOCK_DIVIDER : clock);
     24f0:	9100      	str	r1, [sp, #0]
     24f2:	f001 fe37 	bl	4164 <_ZN8SPIClass16beginTransactionE11SPISettings>
+    SPI_CS_LOW();
     24f6:	6ce2      	ldr	r2, [r4, #76]	; 0x4c
     24f8:	6de1      	ldr	r1, [r4, #92]	; 0x5c
     24fa:	6813      	ldr	r3, [r2, #0]
     24fc:	438b      	bics	r3, r1
     24fe:	6013      	str	r3, [r2, #0]
+}
     2500:	bd13      	pop	{r0, r1, r4, pc}
     2502:	46c0      	nop			; (mov r8, r8)
     2504:	00b71b00 	.word	0x00b71b00
     2508:	20000a20 	.word	0x20000a20
 
 0000250c <_ZN16Adafruit_ILI93418endWriteEv>:
+    SPI_CS_HIGH();
     250c:	6cc2      	ldr	r2, [r0, #76]	; 0x4c
     250e:	6dc1      	ldr	r1, [r0, #92]	; 0x5c
     2510:	6813      	ldr	r3, [r2, #0]
+void Adafruit_ILI9341::endWrite(void){
     2512:	b510      	push	{r4, lr}
+    SPI_CS_HIGH();
     2514:	430b      	orrs	r3, r1
     2516:	6013      	str	r3, [r2, #0]
+    SPI_END_TRANSACTION();
     2518:	6b03      	ldr	r3, [r0, #48]	; 0x30
     251a:	2b00      	cmp	r3, #0
     251c:	da02      	bge.n	2524 <_ZN16Adafruit_ILI93418endWriteEv+0x18>
     251e:	4802      	ldr	r0, [pc, #8]	; (2528 <_ZN16Adafruit_ILI93418endWriteEv+0x1c>)
     2520:	f001 fe3c 	bl	419c <_ZN8SPIClass14endTransactionEv>
+}
     2524:	bd10      	pop	{r4, pc}
     2526:	46c0      	nop			; (mov r8, r8)
     2528:	20000a20 	.word	0x20000a20
 
 0000252c <_ZN16Adafruit_ILI93418color565Ehhh>:
+    return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3);
     252c:	20fc      	movs	r0, #252	; 0xfc
     252e:	00d2      	lsls	r2, r2, #3
     2530:	00c0      	lsls	r0, r0, #3
@@ -4877,9 +4953,11 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2538:	4310      	orrs	r0, r2
     253a:	02c9      	lsls	r1, r1, #11
     253c:	4308      	orrs	r0, r1
+}
     253e:	4770      	bx	lr
 
 00002540 <_ZN16Adafruit_ILI9341C1Eaaa>:
+Adafruit_ILI9341::Adafruit_ILI9341(int8_t cs, int8_t dc, int8_t rst) : Adafruit_GFX(ILI9341_TFTWIDTH, ILI9341_TFTHEIGHT) {
     2540:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
     2542:	0016      	movs	r6, r2
     2544:	22a0      	movs	r2, #160	; 0xa0
@@ -4889,50 +4967,88 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     254c:	0004      	movs	r4, r0
     254e:	001f      	movs	r7, r3
     2550:	f002 fa0c 	bl	496c <_ZN12Adafruit_GFXC1Ess>
+    csport    = portOutputRegister(digitalPinToPort(_cs));
     2554:	2118      	movs	r1, #24
+    _cs   = cs;
     2556:	6265      	str	r5, [r4, #36]	; 0x24
+    csport    = portOutputRegister(digitalPinToPort(_cs));
     2558:	434d      	muls	r5, r1
+Adafruit_ILI9341::Adafruit_ILI9341(int8_t cs, int8_t dc, int8_t rst) : Adafruit_GFX(ILI9341_TFTWIDTH, ILI9341_TFTHEIGHT) {
     255a:	4b15      	ldr	r3, [pc, #84]	; (25b0 <_ZN16Adafruit_ILI9341C1Eaaa+0x70>)
+    csport    = portOutputRegister(digitalPinToPort(_cs));
     255c:	4a15      	ldr	r2, [pc, #84]	; (25b4 <_ZN16Adafruit_ILI9341C1Eaaa+0x74>)
+Adafruit_ILI9341::Adafruit_ILI9341(int8_t cs, int8_t dc, int8_t rst) : Adafruit_GFX(ILI9341_TFTWIDTH, ILI9341_TFTHEIGHT) {
     255e:	3308      	adds	r3, #8
+    csport    = portOutputRegister(digitalPinToPort(_cs));
     2560:	56a8      	ldrsb	r0, [r5, r2]
+Adafruit_ILI9341::Adafruit_ILI9341(int8_t cs, int8_t dc, int8_t rst) : Adafruit_GFX(ILI9341_TFTWIDTH, ILI9341_TFTHEIGHT) {
     2562:	6023      	str	r3, [r4, #0]
+    _sclk  = -1;
     2564:	2301      	movs	r3, #1
+    _rst  = rst;
     2566:	62e7      	str	r7, [r4, #44]	; 0x2c
+    csport    = portOutputRegister(digitalPinToPort(_cs));
     2568:	4f13      	ldr	r7, [pc, #76]	; (25b8 <_ZN16Adafruit_ILI9341C1Eaaa+0x78>)
     256a:	01c0      	lsls	r0, r0, #7
     256c:	19c0      	adds	r0, r0, r7
     256e:	64e0      	str	r0, [r4, #76]	; 0x4c
+    cspinmask = digitalPinToBitMask(_cs);
     2570:	2001      	movs	r0, #1
+    _sclk  = -1;
     2572:	425b      	negs	r3, r3
     2574:	6323      	str	r3, [r4, #48]	; 0x30
+    _mosi  = -1;
     2576:	6363      	str	r3, [r4, #52]	; 0x34
+    _miso  = -1;
     2578:	63a3      	str	r3, [r4, #56]	; 0x38
+    _freq = 0;
     257a:	2300      	movs	r3, #0
+    cspinmask = digitalPinToBitMask(_cs);
     257c:	0007      	movs	r7, r0
+    _dc   = dc;
     257e:	62a6      	str	r6, [r4, #40]	; 0x28
+    _freq = 0;
     2580:	6223      	str	r3, [r4, #32]
+    cspinmask = digitalPinToBitMask(_cs);
     2582:	1955      	adds	r5, r2, r5
     2584:	686d      	ldr	r5, [r5, #4]
+    dcport    = portOutputRegister(digitalPinToPort(_dc));
     2586:	434e      	muls	r6, r1
+    cspinmask = digitalPinToBitMask(_cs);
     2588:	40af      	lsls	r7, r5
+    dcport    = portOutputRegister(digitalPinToPort(_dc));
     258a:	56b1      	ldrsb	r1, [r6, r2]
+    cspinmask = digitalPinToBitMask(_cs);
     258c:	65e7      	str	r7, [r4, #92]	; 0x5c
+    dcpinmask = digitalPinToBitMask(_dc);
     258e:	1992      	adds	r2, r2, r6
     2590:	6852      	ldr	r2, [r2, #4]
+    dcport    = portOutputRegister(digitalPinToPort(_dc));
     2592:	4d09      	ldr	r5, [pc, #36]	; (25b8 <_ZN16Adafruit_ILI9341C1Eaaa+0x78>)
+    dcpinmask = digitalPinToBitMask(_dc);
     2594:	4090      	lsls	r0, r2
+    dcport    = portOutputRegister(digitalPinToPort(_dc));
     2596:	01c9      	lsls	r1, r1, #7
     2598:	1949      	adds	r1, r1, r5
+    dcpinmask = digitalPinToBitMask(_dc);
     259a:	6620      	str	r0, [r4, #96]	; 0x60
+    dcport    = portOutputRegister(digitalPinToPort(_dc));
     259c:	64a1      	str	r1, [r4, #72]	; 0x48
+}
     259e:	0020      	movs	r0, r4
+    clkport     = 0;
     25a0:	6463      	str	r3, [r4, #68]	; 0x44
+    clkpinmask  = 0;
     25a2:	65a3      	str	r3, [r4, #88]	; 0x58
+    mosiport    = 0;
     25a4:	63e3      	str	r3, [r4, #60]	; 0x3c
+    mosipinmask = 0;
     25a6:	6523      	str	r3, [r4, #80]	; 0x50
+    misoport    = 0;
     25a8:	6423      	str	r3, [r4, #64]	; 0x40
+    misopinmask = 0;
     25aa:	6563      	str	r3, [r4, #84]	; 0x54
+}
     25ac:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
     25ae:	46c0      	nop			; (mov r8, r8)
     25b0:	00005f3c 	.word	0x00005f3c
@@ -4940,246 +5056,332 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     25b8:	41004410 	.word	0x41004410
 
 000025bc <_ZN16Adafruit_ILI93418spiWriteEh>:
+void Adafruit_ILI9341::spiWrite(uint8_t b) {
     25bc:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+    if(_sclk < 0){
     25be:	6b03      	ldr	r3, [r0, #48]	; 0x30
     25c0:	2b00      	cmp	r3, #0
     25c2:	da03      	bge.n	25cc <_ZN16Adafruit_ILI93418spiWriteEh+0x10>
+        HSPI_WRITE(b);
     25c4:	480e      	ldr	r0, [pc, #56]	; (2600 <_ZN16Adafruit_ILI93418spiWriteEh+0x44>)
     25c6:	f001 fdfd 	bl	41c4 <_ZN8SPIClass8transferEh>
+}
     25ca:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
+        SSPI_SCK_LOW();
     25cc:	2408      	movs	r4, #8
     25ce:	2580      	movs	r5, #128	; 0x80
     25d0:	6c43      	ldr	r3, [r0, #68]	; 0x44
     25d2:	6bc2      	ldr	r2, [r0, #60]	; 0x3c
     25d4:	6d07      	ldr	r7, [r0, #80]	; 0x50
+            SSPI_MOSI_HIGH();
     25d6:	6816      	ldr	r6, [r2, #0]
+        if((b) & bit){
     25d8:	420d      	tst	r5, r1
     25da:	d00e      	beq.n	25fa <_ZN16Adafruit_ILI93418spiWriteEh+0x3e>
+            SSPI_MOSI_HIGH();
     25dc:	433e      	orrs	r6, r7
+            SSPI_MOSI_LOW();
     25de:	6016      	str	r6, [r2, #0]
+        SSPI_SCK_LOW();
     25e0:	681a      	ldr	r2, [r3, #0]
     25e2:	6d86      	ldr	r6, [r0, #88]	; 0x58
     25e4:	3c01      	subs	r4, #1
     25e6:	43b2      	bics	r2, r6
     25e8:	601a      	str	r2, [r3, #0]
+        SSPI_SCK_HIGH();
     25ea:	681a      	ldr	r2, [r3, #0]
     25ec:	6d86      	ldr	r6, [r0, #88]	; 0x58
+    for(uint8_t bit = 0x80; bit; bit >>= 1){
     25ee:	086d      	lsrs	r5, r5, #1
+        SSPI_SCK_HIGH();
     25f0:	4332      	orrs	r2, r6
     25f2:	601a      	str	r2, [r3, #0]
+    for(uint8_t bit = 0x80; bit; bit >>= 1){
     25f4:	2c00      	cmp	r4, #0
     25f6:	d1ec      	bne.n	25d2 <_ZN16Adafruit_ILI93418spiWriteEh+0x16>
     25f8:	e7e7      	b.n	25ca <_ZN16Adafruit_ILI93418spiWriteEh+0xe>
+            SSPI_MOSI_LOW();
     25fa:	43be      	bics	r6, r7
     25fc:	e7ef      	b.n	25de <_ZN16Adafruit_ILI93418spiWriteEh+0x22>
     25fe:	46c0      	nop			; (mov r8, r8)
     2600:	20000a20 	.word	0x20000a20
 
 00002604 <_ZN16Adafruit_ILI934112writeCommandEh>:
+void Adafruit_ILI9341::writeCommand(uint8_t cmd){
     2604:	b510      	push	{r4, lr}
     2606:	0004      	movs	r4, r0
+    SPI_DC_LOW();
     2608:	6c82      	ldr	r2, [r0, #72]	; 0x48
     260a:	6e00      	ldr	r0, [r0, #96]	; 0x60
     260c:	6813      	ldr	r3, [r2, #0]
     260e:	4383      	bics	r3, r0
     2610:	6013      	str	r3, [r2, #0]
+    spiWrite(cmd);
     2612:	0020      	movs	r0, r4
     2614:	f7ff ffd2 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    SPI_DC_HIGH();
     2618:	6ca2      	ldr	r2, [r4, #72]	; 0x48
     261a:	6e21      	ldr	r1, [r4, #96]	; 0x60
     261c:	6813      	ldr	r3, [r2, #0]
     261e:	430b      	orrs	r3, r1
     2620:	6013      	str	r3, [r2, #0]
+}
     2622:	bd10      	pop	{r4, pc}
 
 00002624 <_ZN16Adafruit_ILI93415beginEm>:
+{
     2624:	b570      	push	{r4, r5, r6, lr}
     2626:	0004      	movs	r4, r0
+    if(!freq){
     2628:	2900      	cmp	r1, #0
     262a:	d100      	bne.n	262e <_ZN16Adafruit_ILI93415beginEm+0xa>
+        freq = SPI_DEFAULT_FREQ;
     262c:	49e8      	ldr	r1, [pc, #928]	; (29d0 <_ZN16Adafruit_ILI93415beginEm+0x3ac>)
+    _freq = freq;
     262e:	6221      	str	r1, [r4, #32]
+    pinMode(_dc, OUTPUT);
     2630:	6aa0      	ldr	r0, [r4, #40]	; 0x28
     2632:	2101      	movs	r1, #1
     2634:	f7ff fc88 	bl	1f48 <pinMode>
+    digitalWrite(_dc, LOW);
     2638:	2100      	movs	r1, #0
     263a:	6aa0      	ldr	r0, [r4, #40]	; 0x28
     263c:	f7ff fcd0 	bl	1fe0 <digitalWrite>
+    pinMode(_cs, OUTPUT);
     2640:	2101      	movs	r1, #1
     2642:	6a60      	ldr	r0, [r4, #36]	; 0x24
     2644:	f7ff fc80 	bl	1f48 <pinMode>
+    digitalWrite(_cs, HIGH);
     2648:	2101      	movs	r1, #1
     264a:	6a60      	ldr	r0, [r4, #36]	; 0x24
     264c:	f7ff fcc8 	bl	1fe0 <digitalWrite>
+    if(_sclk >= 0){
     2650:	6b23      	ldr	r3, [r4, #48]	; 0x30
     2652:	2b00      	cmp	r3, #0
     2654:	db18      	blt.n	2688 <_ZN16Adafruit_ILI93415beginEm+0x64>
+        pinMode(_mosi, OUTPUT);
     2656:	2101      	movs	r1, #1
     2658:	6b60      	ldr	r0, [r4, #52]	; 0x34
     265a:	f7ff fc75 	bl	1f48 <pinMode>
+        digitalWrite(_mosi, LOW);
     265e:	2100      	movs	r1, #0
     2660:	6b60      	ldr	r0, [r4, #52]	; 0x34
     2662:	f7ff fcbd 	bl	1fe0 <digitalWrite>
+        pinMode(_sclk, OUTPUT);
     2666:	2101      	movs	r1, #1
     2668:	6b20      	ldr	r0, [r4, #48]	; 0x30
     266a:	f7ff fc6d 	bl	1f48 <pinMode>
+        digitalWrite(_sclk, HIGH);
     266e:	6b20      	ldr	r0, [r4, #48]	; 0x30
     2670:	2101      	movs	r1, #1
     2672:	f7ff fcb5 	bl	1fe0 <digitalWrite>
+        if(_miso >= 0){
     2676:	6ba0      	ldr	r0, [r4, #56]	; 0x38
     2678:	2800      	cmp	r0, #0
     267a:	db02      	blt.n	2682 <_ZN16Adafruit_ILI93415beginEm+0x5e>
+            pinMode(_miso, INPUT);
     267c:	2100      	movs	r1, #0
     267e:	f7ff fc63 	bl	1f48 <pinMode>
+    SPI_BEGIN();
     2682:	6b23      	ldr	r3, [r4, #48]	; 0x30
     2684:	2b00      	cmp	r3, #0
     2686:	da02      	bge.n	268e <_ZN16Adafruit_ILI93415beginEm+0x6a>
     2688:	48d2      	ldr	r0, [pc, #840]	; (29d4 <_ZN16Adafruit_ILI93415beginEm+0x3b0>)
     268a:	f001 fd43 	bl	4114 <_ZN8SPIClass5beginEv>
+    if (_rst >= 0) {
     268e:	6ae0      	ldr	r0, [r4, #44]	; 0x2c
     2690:	2800      	cmp	r0, #0
     2692:	db17      	blt.n	26c4 <_ZN16Adafruit_ILI93415beginEm+0xa0>
+        pinMode(_rst, OUTPUT);
     2694:	2101      	movs	r1, #1
     2696:	f7ff fc57 	bl	1f48 <pinMode>
+        digitalWrite(_rst, HIGH);
     269a:	2101      	movs	r1, #1
     269c:	6ae0      	ldr	r0, [r4, #44]	; 0x2c
     269e:	f7ff fc9f 	bl	1fe0 <digitalWrite>
+        delay(100);
     26a2:	2064      	movs	r0, #100	; 0x64
     26a4:	f7fe f950 	bl	948 <delay>
+        digitalWrite(_rst, LOW);
     26a8:	2100      	movs	r1, #0
     26aa:	6ae0      	ldr	r0, [r4, #44]	; 0x2c
     26ac:	f7ff fc98 	bl	1fe0 <digitalWrite>
+        delay(100);
     26b0:	2064      	movs	r0, #100	; 0x64
     26b2:	f7fe f949 	bl	948 <delay>
+        digitalWrite(_rst, HIGH);
     26b6:	6ae0      	ldr	r0, [r4, #44]	; 0x2c
     26b8:	2101      	movs	r1, #1
     26ba:	f7ff fc91 	bl	1fe0 <digitalWrite>
+        delay(200);
     26be:	20c8      	movs	r0, #200	; 0xc8
     26c0:	f7fe f942 	bl	948 <delay>
+    startWrite();
     26c4:	6823      	ldr	r3, [r4, #0]
     26c6:	0020      	movs	r0, r4
     26c8:	695b      	ldr	r3, [r3, #20]
     26ca:	4798      	blx	r3
+    writeCommand(0xEF);
     26cc:	21ef      	movs	r1, #239	; 0xef
     26ce:	0020      	movs	r0, r4
     26d0:	f7ff ff98 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x03);
     26d4:	2103      	movs	r1, #3
     26d6:	0020      	movs	r0, r4
     26d8:	f7ff ff70 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x80);
     26dc:	2180      	movs	r1, #128	; 0x80
     26de:	0020      	movs	r0, r4
     26e0:	f7ff ff6c 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x02);
     26e4:	2102      	movs	r1, #2
     26e6:	0020      	movs	r0, r4
     26e8:	f7ff ff68 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(0xCF);
     26ec:	21cf      	movs	r1, #207	; 0xcf
     26ee:	0020      	movs	r0, r4
     26f0:	f7ff ff88 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x00);
     26f4:	2100      	movs	r1, #0
     26f6:	0020      	movs	r0, r4
     26f8:	f7ff ff60 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0XC1);
     26fc:	21c1      	movs	r1, #193	; 0xc1
     26fe:	0020      	movs	r0, r4
     2700:	f7ff ff5c 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0X30);
     2704:	2130      	movs	r1, #48	; 0x30
     2706:	0020      	movs	r0, r4
     2708:	f7ff ff58 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(0xED);
     270c:	21ed      	movs	r1, #237	; 0xed
     270e:	0020      	movs	r0, r4
     2710:	f7ff ff78 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x64);
     2714:	2164      	movs	r1, #100	; 0x64
     2716:	0020      	movs	r0, r4
     2718:	f7ff ff50 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x03);
     271c:	2103      	movs	r1, #3
     271e:	0020      	movs	r0, r4
     2720:	f7ff ff4c 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0X12);
     2724:	2112      	movs	r1, #18
     2726:	0020      	movs	r0, r4
     2728:	f7ff ff48 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0X81);
     272c:	2181      	movs	r1, #129	; 0x81
     272e:	0020      	movs	r0, r4
     2730:	f7ff ff44 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(0xE8);
     2734:	21e8      	movs	r1, #232	; 0xe8
     2736:	0020      	movs	r0, r4
     2738:	f7ff ff64 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x85);
     273c:	2185      	movs	r1, #133	; 0x85
     273e:	0020      	movs	r0, r4
     2740:	f7ff ff3c 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x00);
     2744:	2100      	movs	r1, #0
     2746:	0020      	movs	r0, r4
     2748:	f7ff ff38 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x78);
     274c:	2178      	movs	r1, #120	; 0x78
     274e:	0020      	movs	r0, r4
     2750:	f7ff ff34 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(0xCB);
     2754:	21cb      	movs	r1, #203	; 0xcb
     2756:	0020      	movs	r0, r4
     2758:	f7ff ff54 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x39);
     275c:	2139      	movs	r1, #57	; 0x39
     275e:	0020      	movs	r0, r4
     2760:	f7ff ff2c 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x2C);
     2764:	212c      	movs	r1, #44	; 0x2c
     2766:	0020      	movs	r0, r4
     2768:	f7ff ff28 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x00);
     276c:	2100      	movs	r1, #0
     276e:	0020      	movs	r0, r4
     2770:	f7ff ff24 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x34);
     2774:	2134      	movs	r1, #52	; 0x34
     2776:	0020      	movs	r0, r4
     2778:	f7ff ff20 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x02);
     277c:	2102      	movs	r1, #2
     277e:	0020      	movs	r0, r4
     2780:	f7ff ff1c 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(0xF7);
     2784:	21f7      	movs	r1, #247	; 0xf7
     2786:	0020      	movs	r0, r4
     2788:	f7ff ff3c 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x20);
     278c:	2120      	movs	r1, #32
     278e:	0020      	movs	r0, r4
     2790:	f7ff ff14 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(0xEA);
     2794:	21ea      	movs	r1, #234	; 0xea
     2796:	0020      	movs	r0, r4
     2798:	f7ff ff34 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x00);
     279c:	2100      	movs	r1, #0
     279e:	0020      	movs	r0, r4
     27a0:	f7ff ff0c 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x00);
     27a4:	2100      	movs	r1, #0
     27a6:	0020      	movs	r0, r4
     27a8:	f7ff ff08 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_PWCTR1);    //Power control
     27ac:	21c0      	movs	r1, #192	; 0xc0
     27ae:	0020      	movs	r0, r4
     27b0:	f7ff ff28 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x23);   //VRH[5:0]
     27b4:	2123      	movs	r1, #35	; 0x23
     27b6:	0020      	movs	r0, r4
     27b8:	f7ff ff00 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_PWCTR2);    //Power control
     27bc:	21c1      	movs	r1, #193	; 0xc1
     27be:	0020      	movs	r0, r4
     27c0:	f7ff ff20 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x10);   //SAP[2:0];BT[3:0]
     27c4:	2110      	movs	r1, #16
     27c6:	0020      	movs	r0, r4
     27c8:	f7ff fef8 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_VMCTR1);    //VCM control
     27cc:	21c5      	movs	r1, #197	; 0xc5
     27ce:	0020      	movs	r0, r4
     27d0:	f7ff ff18 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x3e);
     27d4:	213e      	movs	r1, #62	; 0x3e
     27d6:	0020      	movs	r0, r4
     27d8:	f7ff fef0 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x28);
     27dc:	2128      	movs	r1, #40	; 0x28
     27de:	0020      	movs	r0, r4
     27e0:	f7ff feec 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_VMCTR2);    //VCM control2
     27e4:	21c7      	movs	r1, #199	; 0xc7
     27e6:	0020      	movs	r0, r4
     27e8:	f7ff ff0c 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x86);  //--
     27ec:	2186      	movs	r1, #134	; 0x86
     27ee:	0020      	movs	r0, r4
     27f0:	f7ff fee4 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_MADCTL);    // Memory Access Control
     27f4:	2136      	movs	r1, #54	; 0x36
     27f6:	0020      	movs	r0, r4
     27f8:	f7ff ff04 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x48);
     27fc:	2148      	movs	r1, #72	; 0x48
     27fe:	0020      	movs	r0, r4
     2800:	f7ff fedc 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_VSCRSADD); // Vertical scroll
     2804:	2137      	movs	r1, #55	; 0x37
     2806:	0020      	movs	r0, r4
     2808:	f7ff fefc 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    SPI_WRITE16(0);                 // Zero
     280c:	6b23      	ldr	r3, [r4, #48]	; 0x30
     280e:	2b00      	cmp	r3, #0
     2810:	db00      	blt.n	2814 <_ZN16Adafruit_ILI93415beginEm+0x1f0>
@@ -5191,160 +5393,214 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     281e:	2100      	movs	r1, #0
     2820:	0028      	movs	r0, r5
     2822:	f001 fccf 	bl	41c4 <_ZN8SPIClass8transferEh>
+    writeCommand(ILI9341_PIXFMT);
     2826:	213a      	movs	r1, #58	; 0x3a
     2828:	0020      	movs	r0, r4
     282a:	f7ff feeb 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x55);
     282e:	2155      	movs	r1, #85	; 0x55
     2830:	0020      	movs	r0, r4
     2832:	f7ff fec3 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_FRMCTR1);
     2836:	21b1      	movs	r1, #177	; 0xb1
     2838:	0020      	movs	r0, r4
     283a:	f7ff fee3 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x00);
     283e:	2100      	movs	r1, #0
     2840:	0020      	movs	r0, r4
     2842:	f7ff febb 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x18);
     2846:	2118      	movs	r1, #24
     2848:	0020      	movs	r0, r4
     284a:	f7ff feb7 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_DFUNCTR);    // Display Function Control
     284e:	21b6      	movs	r1, #182	; 0xb6
     2850:	0020      	movs	r0, r4
     2852:	f7ff fed7 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x08);
     2856:	2108      	movs	r1, #8
     2858:	0020      	movs	r0, r4
     285a:	f7ff feaf 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x82);
     285e:	2182      	movs	r1, #130	; 0x82
     2860:	0020      	movs	r0, r4
     2862:	f7ff feab 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x27);
     2866:	2127      	movs	r1, #39	; 0x27
     2868:	0020      	movs	r0, r4
     286a:	f7ff fea7 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(0xF2);    // 3Gamma Function Disable
     286e:	21f2      	movs	r1, #242	; 0xf2
     2870:	0020      	movs	r0, r4
     2872:	f7ff fec7 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x00);
     2876:	2100      	movs	r1, #0
     2878:	0020      	movs	r0, r4
     287a:	f7ff fe9f 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_GAMMASET);    //Gamma curve selected
     287e:	2126      	movs	r1, #38	; 0x26
     2880:	0020      	movs	r0, r4
     2882:	f7ff febf 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x01);
     2886:	2101      	movs	r1, #1
     2888:	0020      	movs	r0, r4
     288a:	f7ff fe97 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_GMCTRP1);    //Set Gamma
     288e:	21e0      	movs	r1, #224	; 0xe0
     2890:	0020      	movs	r0, r4
     2892:	f7ff feb7 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x0F);
     2896:	210f      	movs	r1, #15
     2898:	0020      	movs	r0, r4
     289a:	f7ff fe8f 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x31);
     289e:	2131      	movs	r1, #49	; 0x31
     28a0:	0020      	movs	r0, r4
     28a2:	f7ff fe8b 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x2B);
     28a6:	212b      	movs	r1, #43	; 0x2b
     28a8:	0020      	movs	r0, r4
     28aa:	f7ff fe87 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x0C);
     28ae:	210c      	movs	r1, #12
     28b0:	0020      	movs	r0, r4
     28b2:	f7ff fe83 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x0E);
     28b6:	210e      	movs	r1, #14
     28b8:	0020      	movs	r0, r4
     28ba:	f7ff fe7f 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x08);
     28be:	2108      	movs	r1, #8
     28c0:	0020      	movs	r0, r4
     28c2:	f7ff fe7b 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x4E);
     28c6:	214e      	movs	r1, #78	; 0x4e
     28c8:	0020      	movs	r0, r4
     28ca:	f7ff fe77 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0xF1);
     28ce:	21f1      	movs	r1, #241	; 0xf1
     28d0:	0020      	movs	r0, r4
     28d2:	f7ff fe73 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x37);
     28d6:	2137      	movs	r1, #55	; 0x37
     28d8:	0020      	movs	r0, r4
     28da:	f7ff fe6f 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x07);
     28de:	2107      	movs	r1, #7
     28e0:	0020      	movs	r0, r4
     28e2:	f7ff fe6b 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x10);
     28e6:	2110      	movs	r1, #16
     28e8:	0020      	movs	r0, r4
     28ea:	f7ff fe67 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x03);
     28ee:	2103      	movs	r1, #3
     28f0:	0020      	movs	r0, r4
     28f2:	f7ff fe63 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x0E);
     28f6:	210e      	movs	r1, #14
     28f8:	0020      	movs	r0, r4
     28fa:	f7ff fe5f 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x09);
     28fe:	2109      	movs	r1, #9
     2900:	0020      	movs	r0, r4
     2902:	f7ff fe5b 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x00);
     2906:	2100      	movs	r1, #0
     2908:	0020      	movs	r0, r4
     290a:	f7ff fe57 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_GMCTRN1);    //Set Gamma
     290e:	21e1      	movs	r1, #225	; 0xe1
     2910:	0020      	movs	r0, r4
     2912:	f7ff fe77 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(0x00);
     2916:	2100      	movs	r1, #0
     2918:	0020      	movs	r0, r4
     291a:	f7ff fe4f 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x0E);
     291e:	210e      	movs	r1, #14
     2920:	0020      	movs	r0, r4
     2922:	f7ff fe4b 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x14);
     2926:	2114      	movs	r1, #20
     2928:	0020      	movs	r0, r4
     292a:	f7ff fe47 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x03);
     292e:	2103      	movs	r1, #3
     2930:	0020      	movs	r0, r4
     2932:	f7ff fe43 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x11);
     2936:	2111      	movs	r1, #17
     2938:	0020      	movs	r0, r4
     293a:	f7ff fe3f 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x07);
     293e:	2107      	movs	r1, #7
     2940:	0020      	movs	r0, r4
     2942:	f7ff fe3b 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x31);
     2946:	2131      	movs	r1, #49	; 0x31
     2948:	0020      	movs	r0, r4
     294a:	f7ff fe37 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0xC1);
     294e:	21c1      	movs	r1, #193	; 0xc1
     2950:	0020      	movs	r0, r4
     2952:	f7ff fe33 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x48);
     2956:	2148      	movs	r1, #72	; 0x48
     2958:	0020      	movs	r0, r4
     295a:	f7ff fe2f 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x08);
     295e:	2108      	movs	r1, #8
     2960:	0020      	movs	r0, r4
     2962:	f7ff fe2b 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x0F);
     2966:	210f      	movs	r1, #15
     2968:	0020      	movs	r0, r4
     296a:	f7ff fe27 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x0C);
     296e:	210c      	movs	r1, #12
     2970:	0020      	movs	r0, r4
     2972:	f7ff fe23 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x31);
     2976:	2131      	movs	r1, #49	; 0x31
     2978:	0020      	movs	r0, r4
     297a:	f7ff fe1f 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x36);
     297e:	2136      	movs	r1, #54	; 0x36
     2980:	0020      	movs	r0, r4
     2982:	f7ff fe1b 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    spiWrite(0x0F);
     2986:	210f      	movs	r1, #15
     2988:	0020      	movs	r0, r4
     298a:	f7ff fe17 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    writeCommand(ILI9341_SLPOUT);    //Exit Sleep
     298e:	2111      	movs	r1, #17
     2990:	0020      	movs	r0, r4
     2992:	f7ff fe37 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    delay(120);
     2996:	2078      	movs	r0, #120	; 0x78
     2998:	f7fd ffd6 	bl	948 <delay>
+    writeCommand(ILI9341_DISPON);    //Display on
     299c:	2129      	movs	r1, #41	; 0x29
     299e:	0020      	movs	r0, r4
     29a0:	f7ff fe30 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    delay(120);
     29a4:	2078      	movs	r0, #120	; 0x78
     29a6:	f7fd ffcf 	bl	948 <delay>
+    endWrite();
     29aa:	6823      	ldr	r3, [r4, #0]
     29ac:	0020      	movs	r0, r4
     29ae:	6adb      	ldr	r3, [r3, #44]	; 0x2c
     29b0:	4798      	blx	r3
+    _width  = ILI9341_TFTWIDTH;
     29b2:	23f0      	movs	r3, #240	; 0xf0
     29b4:	81a3      	strh	r3, [r4, #12]
+    _height = ILI9341_TFTHEIGHT;
     29b6:	3350      	adds	r3, #80	; 0x50
     29b8:	81e3      	strh	r3, [r4, #14]
+}
     29ba:	bd70      	pop	{r4, r5, r6, pc}
+    SPI_WRITE16(0);                 // Zero
     29bc:	0020      	movs	r0, r4
     29be:	2100      	movs	r1, #0
     29c0:	f7ff fdfc 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
@@ -5357,90 +5613,131 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     29d4:	20000a20 	.word	0x20000a20
 
 000029d8 <_ZN16Adafruit_ILI934111setRotationEh>:
+    rotation = m % 4; // can't be higher than 3
     29d8:	2303      	movs	r3, #3
     29da:	22a0      	movs	r2, #160	; 0xa0
     29dc:	4019      	ands	r1, r3
+void Adafruit_ILI9341::setRotation(uint8_t m) {
     29de:	b570      	push	{r4, r5, r6, lr}
     29e0:	33ed      	adds	r3, #237	; 0xed
     29e2:	0004      	movs	r4, r0
+    rotation = m % 4; // can't be higher than 3
     29e4:	7641      	strb	r1, [r0, #25]
     29e6:	0052      	lsls	r2, r2, #1
+    switch (rotation) {
     29e8:	2902      	cmp	r1, #2
     29ea:	d01b      	beq.n	2a24 <_ZN16Adafruit_ILI934111setRotationEh+0x4c>
     29ec:	2903      	cmp	r1, #3
     29ee:	d01d      	beq.n	2a2c <_ZN16Adafruit_ILI934111setRotationEh+0x54>
     29f0:	2901      	cmp	r1, #1
     29f2:	d013      	beq.n	2a1c <_ZN16Adafruit_ILI934111setRotationEh+0x44>
+            m = (MADCTL_MX | MADCTL_BGR);
     29f4:	2548      	movs	r5, #72	; 0x48
+            _width  = ILI9341_TFTWIDTH;
     29f6:	8183      	strh	r3, [r0, #12]
+            _height = ILI9341_TFTHEIGHT;
     29f8:	81c2      	strh	r2, [r0, #14]
+    startWrite();
     29fa:	6823      	ldr	r3, [r4, #0]
     29fc:	0020      	movs	r0, r4
     29fe:	695b      	ldr	r3, [r3, #20]
     2a00:	4798      	blx	r3
+    writeCommand(ILI9341_MADCTL);
     2a02:	0020      	movs	r0, r4
     2a04:	2136      	movs	r1, #54	; 0x36
     2a06:	f7ff fdfd 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    spiWrite(m);
     2a0a:	0029      	movs	r1, r5
     2a0c:	0020      	movs	r0, r4
     2a0e:	f7ff fdd5 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    endWrite();
     2a12:	6823      	ldr	r3, [r4, #0]
     2a14:	0020      	movs	r0, r4
     2a16:	6adb      	ldr	r3, [r3, #44]	; 0x2c
     2a18:	4798      	blx	r3
+}
     2a1a:	bd70      	pop	{r4, r5, r6, pc}
+            _width  = ILI9341_TFTHEIGHT;
     2a1c:	8182      	strh	r2, [r0, #12]
+            _height = ILI9341_TFTWIDTH;
     2a1e:	81c3      	strh	r3, [r0, #14]
+            m = (MADCTL_MV | MADCTL_BGR);
     2a20:	2528      	movs	r5, #40	; 0x28
+            break;
     2a22:	e7ea      	b.n	29fa <_ZN16Adafruit_ILI934111setRotationEh+0x22>
+            _width  = ILI9341_TFTWIDTH;
     2a24:	8183      	strh	r3, [r0, #12]
+            _height = ILI9341_TFTHEIGHT;
     2a26:	81c2      	strh	r2, [r0, #14]
+            m = (MADCTL_MY | MADCTL_BGR);
     2a28:	2588      	movs	r5, #136	; 0x88
+            break;
     2a2a:	e7e6      	b.n	29fa <_ZN16Adafruit_ILI934111setRotationEh+0x22>
+            _width  = ILI9341_TFTHEIGHT;
     2a2c:	8182      	strh	r2, [r0, #12]
+            _height = ILI9341_TFTWIDTH;
     2a2e:	81c3      	strh	r3, [r0, #14]
+            m = (MADCTL_MX | MADCTL_MY | MADCTL_MV | MADCTL_BGR);
     2a30:	25e8      	movs	r5, #232	; 0xe8
+            break;
     2a32:	e7e2      	b.n	29fa <_ZN16Adafruit_ILI934111setRotationEh+0x22>
 
 00002a34 <_ZN16Adafruit_ILI934113invertDisplayEb>:
+void Adafruit_ILI9341::invertDisplay(boolean i) {
     2a34:	b570      	push	{r4, r5, r6, lr}
     2a36:	000d      	movs	r5, r1
+    writeCommand(i ? ILI9341_INVON : ILI9341_INVOFF);
     2a38:	1e69      	subs	r1, r5, #1
     2a3a:	418d      	sbcs	r5, r1
+    startWrite();
     2a3c:	6803      	ldr	r3, [r0, #0]
+void Adafruit_ILI9341::invertDisplay(boolean i) {
     2a3e:	0004      	movs	r4, r0
+    startWrite();
     2a40:	695b      	ldr	r3, [r3, #20]
     2a42:	4798      	blx	r3
+    writeCommand(i ? ILI9341_INVON : ILI9341_INVOFF);
     2a44:	0029      	movs	r1, r5
     2a46:	0020      	movs	r0, r4
     2a48:	3120      	adds	r1, #32
     2a4a:	f7ff fddb 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+    endWrite();
     2a4e:	6823      	ldr	r3, [r4, #0]
     2a50:	0020      	movs	r0, r4
     2a52:	6adb      	ldr	r3, [r3, #44]	; 0x2c
     2a54:	4798      	blx	r3
+}
     2a56:	bd70      	pop	{r4, r5, r6, pc}
 
 00002a58 <_ZN16Adafruit_ILI934113setAddrWindowEtttt>:
+void Adafruit_ILI9341::setAddrWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
     2a58:	b5f7      	push	{r0, r1, r2, r4, r5, r6, r7, lr}
     2a5a:	001e      	movs	r6, r3
     2a5c:	0004      	movs	r4, r0
     2a5e:	ab08      	add	r3, sp, #32
     2a60:	881d      	ldrh	r5, [r3, #0]
+    uint32_t xa = ((uint32_t)x << 16) | (x+w-1);
     2a62:	198e      	adds	r6, r1, r6
+    uint32_t ya = ((uint32_t)y << 16) | (y+h-1);
     2a64:	1955      	adds	r5, r2, r5
+    uint32_t xa = ((uint32_t)x << 16) | (x+w-1);
     2a66:	0409      	lsls	r1, r1, #16
     2a68:	3e01      	subs	r6, #1
     2a6a:	430e      	orrs	r6, r1
+    uint32_t ya = ((uint32_t)y << 16) | (y+h-1);
     2a6c:	0412      	lsls	r2, r2, #16
+    writeCommand(ILI9341_CASET); // Column addr set
     2a6e:	212a      	movs	r1, #42	; 0x2a
+    uint32_t ya = ((uint32_t)y << 16) | (y+h-1);
     2a70:	3d01      	subs	r5, #1
     2a72:	4315      	orrs	r5, r2
+    writeCommand(ILI9341_CASET); // Column addr set
     2a74:	f7ff fdc6 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
     2a78:	0c33      	lsrs	r3, r6, #16
     2a7a:	9300      	str	r3, [sp, #0]
     2a7c:	0a33      	lsrs	r3, r6, #8
     2a7e:	9301      	str	r3, [sp, #4]
+    SPI_WRITE32(xa);
     2a80:	6b23      	ldr	r3, [r4, #48]	; 0x30
     2a82:	0e31      	lsrs	r1, r6, #24
     2a84:	b2c9      	uxtb	r1, r1
@@ -5461,11 +5758,13 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2aa8:	0031      	movs	r1, r6
     2aaa:	0038      	movs	r0, r7
     2aac:	f001 fb8a 	bl	41c4 <_ZN8SPIClass8transferEh>
+    writeCommand(ILI9341_PASET); // Row addr set
     2ab0:	212b      	movs	r1, #43	; 0x2b
     2ab2:	0020      	movs	r0, r4
     2ab4:	f7ff fda6 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
     2ab8:	0a2b      	lsrs	r3, r5, #8
     2aba:	9300      	str	r3, [sp, #0]
+    SPI_WRITE32(ya);
     2abc:	6b23      	ldr	r3, [r4, #48]	; 0x30
     2abe:	0e29      	lsrs	r1, r5, #24
     2ac0:	0c2e      	lsrs	r6, r5, #16
@@ -5486,10 +5785,13 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2ae4:	0029      	movs	r1, r5
     2ae6:	0038      	movs	r0, r7
     2ae8:	f001 fb6c 	bl	41c4 <_ZN8SPIClass8transferEh>
+    writeCommand(ILI9341_RAMWR); // write to RAM
     2aec:	212c      	movs	r1, #44	; 0x2c
     2aee:	0020      	movs	r0, r4
     2af0:	f7ff fd88 	bl	2604 <_ZN16Adafruit_ILI934112writeCommandEh>
+}
     2af4:	bdf7      	pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+    SPI_WRITE32(xa);
     2af6:	0020      	movs	r0, r4
     2af8:	f7ff fd60 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
     2afc:	466b      	mov	r3, sp
@@ -5504,6 +5806,7 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2b12:	0020      	movs	r0, r4
     2b14:	f7ff fd52 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
     2b18:	e7ca      	b.n	2ab0 <_ZN16Adafruit_ILI934113setAddrWindowEtttt+0x58>
+    SPI_WRITE32(ya);
     2b1a:	0020      	movs	r0, r4
     2b1c:	f7ff fd4e 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
     2b20:	b2f1      	uxtb	r1, r6
@@ -5520,11 +5823,14 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2b3c:	20000a20 	.word	0x20000a20
 
 00002b40 <_ZN16Adafruit_ILI934110writePixelEt>:
+    SPI_WRITE16(color);
     2b40:	6b02      	ldr	r2, [r0, #48]	; 0x30
     2b42:	120b      	asrs	r3, r1, #8
+void Adafruit_ILI9341::writePixel(uint16_t color){
     2b44:	b570      	push	{r4, r5, r6, lr}
     2b46:	b2cc      	uxtb	r4, r1
     2b48:	0005      	movs	r5, r0
+    SPI_WRITE16(color);
     2b4a:	b2d9      	uxtb	r1, r3
     2b4c:	2a00      	cmp	r2, #0
     2b4e:	da08      	bge.n	2b62 <_ZN16Adafruit_ILI934110writePixelEt+0x22>
@@ -5534,18 +5840,23 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2b58:	0021      	movs	r1, r4
     2b5a:	0028      	movs	r0, r5
     2b5c:	f001 fb32 	bl	41c4 <_ZN8SPIClass8transferEh>
+}
     2b60:	bd70      	pop	{r4, r5, r6, pc}
+    SPI_WRITE16(color);
     2b62:	f7ff fd2b 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
     2b66:	0021      	movs	r1, r4
     2b68:	0028      	movs	r0, r5
     2b6a:	f7ff fd27 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+}
     2b6e:	e7f7      	b.n	2b60 <_ZN16Adafruit_ILI934110writePixelEt+0x20>
     2b70:	20000a20 	.word	0x20000a20
 
 00002b74 <_ZN16Adafruit_ILI934110writePixelEsst>:
+void Adafruit_ILI9341::writePixel(int16_t x, int16_t y, uint16_t color) {
     2b74:	b537      	push	{r0, r1, r2, r4, r5, lr}
     2b76:	0004      	movs	r4, r0
     2b78:	001d      	movs	r5, r3
+    if((x < 0) ||(x >= _width) || (y < 0) || (y >= _height)) return;
     2b7a:	2900      	cmp	r1, #0
     2b7c:	db14      	blt.n	2ba8 <_ZN16Adafruit_ILI934110writePixelEsst+0x34>
     2b7e:	200c      	movs	r0, #12
@@ -5558,52 +5869,70 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2b8c:	5e23      	ldrsh	r3, [r4, r0]
     2b8e:	4293      	cmp	r3, r2
     2b90:	dd0a      	ble.n	2ba8 <_ZN16Adafruit_ILI934110writePixelEsst+0x34>
+    setAddrWindow(x,y,1,1);
     2b92:	2301      	movs	r3, #1
     2b94:	b289      	uxth	r1, r1
     2b96:	0020      	movs	r0, r4
     2b98:	b292      	uxth	r2, r2
     2b9a:	9300      	str	r3, [sp, #0]
     2b9c:	f7ff ff5c 	bl	2a58 <_ZN16Adafruit_ILI934113setAddrWindowEtttt>
+    writePixel(color);
     2ba0:	0029      	movs	r1, r5
     2ba2:	0020      	movs	r0, r4
     2ba4:	f7ff ffcc 	bl	2b40 <_ZN16Adafruit_ILI934110writePixelEt>
+}
     2ba8:	bd37      	pop	{r0, r1, r2, r4, r5, pc}
 	...
 
 00002bac <_ZN16Adafruit_ILI934110writeColorEtm>:
+void Adafruit_ILI9341::writeColor(uint16_t color, uint32_t len){
     2bac:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+    if(_sclk < 0){ //AVR Optimization
     2bae:	6b03      	ldr	r3, [r0, #48]	; 0x30
+void Adafruit_ILI9341::writeColor(uint16_t color, uint32_t len){
     2bb0:	0006      	movs	r6, r0
     2bb2:	0014      	movs	r4, r2
+    uint8_t hi = color >> 8, lo = color;
     2bb4:	0a0f      	lsrs	r7, r1, #8
     2bb6:	b2cd      	uxtb	r5, r1
+    if(_sclk < 0){ //AVR Optimization
     2bb8:	2b00      	cmp	r3, #0
     2bba:	da0c      	bge.n	2bd6 <_ZN16Adafruit_ILI934110writeColorEtm+0x2a>
+        for (uint32_t t=len; t; t--){
     2bbc:	2c00      	cmp	r4, #0
     2bbe:	d016      	beq.n	2bee <_ZN16Adafruit_ILI934110writeColorEtm+0x42>
+            HSPI_WRITE(hi);
     2bc0:	4e0b      	ldr	r6, [pc, #44]	; (2bf0 <_ZN16Adafruit_ILI934110writeColorEtm+0x44>)
     2bc2:	0039      	movs	r1, r7
     2bc4:	0030      	movs	r0, r6
     2bc6:	f001 fafd 	bl	41c4 <_ZN8SPIClass8transferEh>
+            HSPI_WRITE(lo);
     2bca:	0029      	movs	r1, r5
     2bcc:	0030      	movs	r0, r6
     2bce:	f001 faf9 	bl	41c4 <_ZN8SPIClass8transferEh>
+        for (uint32_t t=len; t; t--){
     2bd2:	3c01      	subs	r4, #1
     2bd4:	e7f2      	b.n	2bbc <_ZN16Adafruit_ILI934110writeColorEtm+0x10>
+    for (uint32_t t=len; t; t--){
     2bd6:	2c00      	cmp	r4, #0
     2bd8:	d009      	beq.n	2bee <_ZN16Adafruit_ILI934110writeColorEtm+0x42>
+        spiWrite(hi);
     2bda:	0039      	movs	r1, r7
     2bdc:	0030      	movs	r0, r6
     2bde:	f7ff fced 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+        spiWrite(lo);
     2be2:	0029      	movs	r1, r5
     2be4:	0030      	movs	r0, r6
     2be6:	f7ff fce9 	bl	25bc <_ZN16Adafruit_ILI93418spiWriteEh>
+    for (uint32_t t=len; t; t--){
     2bea:	3c01      	subs	r4, #1
     2bec:	e7f3      	b.n	2bd6 <_ZN16Adafruit_ILI934110writeColorEtm+0x2a>
+}
     2bee:	bdf8      	pop	{r3, r4, r5, r6, r7, pc}
     2bf0:	20000a20 	.word	0x20000a20
 
 00002bf4 <_ZN16Adafruit_ILI934113writeFillRectEsssst>:
+void Adafruit_ILI9341::writeFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color){
     2bf4:	b5f0      	push	{r4, r5, r6, r7, lr}
     2bf6:	0004      	movs	r4, r0
     2bf8:	b087      	sub	sp, #28
@@ -5613,6 +5942,7 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2c00:	ad0d      	add	r5, sp, #52	; 0x34
     2c02:	882d      	ldrh	r5, [r5, #0]
     2c04:	9505      	str	r5, [sp, #20]
+    if((x >= _width) || (y >= _height)) return;
     2c06:	260c      	movs	r6, #12
     2c08:	5fa5      	ldrsh	r5, [r4, r6]
     2c0a:	428d      	cmp	r5, r1
@@ -5622,6 +5952,7 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2c12:	46b4      	mov	ip, r6
     2c14:	4296      	cmp	r6, r2
     2c16:	dd34      	ble.n	2c82 <_ZN16Adafruit_ILI934113writeFillRectEsssst+0x8e>
+    int16_t x2 = x + w - 1, y2 = y + h - 1;
     2c18:	18ce      	adds	r6, r1, r3
     2c1a:	b2b6      	uxth	r6, r6
     2c1c:	9602      	str	r6, [sp, #8]
@@ -5633,35 +5964,46 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2c28:	1e7e      	subs	r6, r7, #1
     2c2a:	b236      	sxth	r6, r6
     2c2c:	9604      	str	r6, [sp, #16]
+    if((x2 < 0) || (y2 < 0)) return;
     2c2e:	9e03      	ldr	r6, [sp, #12]
     2c30:	2e00      	cmp	r6, #0
     2c32:	db26      	blt.n	2c82 <_ZN16Adafruit_ILI934113writeFillRectEsssst+0x8e>
     2c34:	9e04      	ldr	r6, [sp, #16]
     2c36:	2e00      	cmp	r6, #0
     2c38:	db23      	blt.n	2c82 <_ZN16Adafruit_ILI934113writeFillRectEsssst+0x8e>
+    if(x < 0) {
     2c3a:	2900      	cmp	r1, #0
     2c3c:	da03      	bge.n	2c46 <_ZN16Adafruit_ILI934113writeFillRectEsssst+0x52>
+        w = x2 + 1;
     2c3e:	466b      	mov	r3, sp
     2c40:	2108      	movs	r1, #8
     2c42:	5e5b      	ldrsh	r3, [r3, r1]
+        x = 0;
     2c44:	2100      	movs	r1, #0
+    if(y < 0) {
     2c46:	2a00      	cmp	r2, #0
     2c48:	da01      	bge.n	2c4e <_ZN16Adafruit_ILI934113writeFillRectEsssst+0x5a>
+        y = 0;
     2c4a:	2200      	movs	r2, #0
+        h = y2 + 1;
     2c4c:	b238      	sxth	r0, r7
+    if(x2 >= _width)  w = _width  - x;
     2c4e:	9e03      	ldr	r6, [sp, #12]
     2c50:	42b5      	cmp	r5, r6
     2c52:	dc01      	bgt.n	2c58 <_ZN16Adafruit_ILI934113writeFillRectEsssst+0x64>
     2c54:	1a6b      	subs	r3, r5, r1
     2c56:	b21b      	sxth	r3, r3
+    if(y2 >= _height) h = _height - y;
     2c58:	9d04      	ldr	r5, [sp, #16]
     2c5a:	45ac      	cmp	ip, r5
     2c5c:	dc02      	bgt.n	2c64 <_ZN16Adafruit_ILI934113writeFillRectEsssst+0x70>
     2c5e:	4660      	mov	r0, ip
     2c60:	1a80      	subs	r0, r0, r2
     2c62:	b200      	sxth	r0, r0
+    int32_t len = (int32_t)w * h;
     2c64:	0005      	movs	r5, r0
     2c66:	435d      	muls	r5, r3
+    setAddrWindow(x, y, w, h);
     2c68:	b280      	uxth	r0, r0
     2c6a:	b292      	uxth	r2, r2
     2c6c:	b289      	uxth	r1, r1
@@ -5669,10 +6011,12 @@ __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
     2c70:	b29b      	uxth	r3, r3
     2c72:	0020      	movs	r0, r4
     2c74:	f7ff fef0 	bl	2a58 <_ZN16Adafruit_ILI934113setAddrWindowEtttt>
+    writeColor(color, len);
     2c78:	002a      	movs	r2, r5
     2c7a:	9905      	ldr	r1, [sp, #20]
     2c7c:	0020      	movs	r0, r4
     2c7e:	f7ff ff95 	bl	2bac <_ZN16Adafruit_ILI934110writeColorEtm>
+}
     2c82:	b007      	add	sp, #28
     2c84:	bdf0      	pop	{r4, r5, r6, r7, pc}
 

@@ -6,16 +6,15 @@
 /***************************************************
  Touchscreen Noughts and Crosses Project
 
- Using Adafruit TFT Capacitive Touch Shield and Arduino Uno
+ Using Adafruit TFT Capacitive Touch Shield and Arduino M0 Pro
 
  WIP:
- - Quit button
  - Settings
    - Game wins for match win
  - Match win banner
- - Bug
- - Minimise libraries, also maybe rename
- - Consider better implmentations
+ - Quantum Tic-Tac-Toe
+ - X should move first
+ - Consider better implementations
 
  Written by Sam Ellis
  ****************************************************/
@@ -59,7 +58,7 @@ Adafruit_FT6206 touchScreen = Adafruit_FT6206();
 #define SD_CS 4
 
 // Image drawing pixel buffer
-#define BUFFPIXEL 20
+#define BUFFPIXEL 85
 
 // Array of arrays of three indexes in a row on a 3x3 grid
 uint8_t winIndexes[][3] = { {0, 4, 8}, {2, 4, 6}, {0, 1, 2}, {3, 4, 5},
@@ -270,7 +269,7 @@ void updateScore(int noughtsScore, int crossesScore) {
 }
 
 State game(uint8_t noughtsScore, uint8_t crossesScore) {
-	State player = nought;
+	State player = cross;
 	State boardState[9] = {empty, empty, empty, empty, empty, empty, empty, empty,
 	empty};
 	State winner = empty;
@@ -371,31 +370,49 @@ void playMatch(int maxGames) {
 
 	while (gamesPlayed < maxGames) {
 		State winner = game(noughtsScore, crossesScore);
-		gamesPlayed++;
 
-		// Draw win banner
+		// Select win banner and add to winners score
 		char bitmap;
 		switch (winner) {
 			case cross:
 			// Crosses wins
 			bitmap = 'e';
 			crossesScore++;
+			gamesPlayed++;
 			break;
 			case nought:
 			// Noughts wins
 			bitmap = 'g';
 			noughtsScore++;
+			gamesPlayed++;
 			break;
 			case empty:
 			// Game is a draw
 			bitmap = 'f';
 			break;
 		}
-		drawBitmap(bitmap, 0, 110);
-
+		
 		updateScore(noughtsScore, crossesScore);
-		while (true)
-		if (touchScreen.touched()) break;
+		
+		// If there are still games to be played draw win banner,
+		// otherwise draw end game screen
+		if (gamesPlayed < maxGames) {
+			drawBitmap(bitmap, 0, 110);
+			while (true)
+			if (touchScreen.touched()) break;
+		} else {
+			if (crossesScore > noughtsScore) {
+				// Draw game-over, crosses wins
+				// TODO
+				// Then wait for touch to return to main menu
+				if (touchScreen.touched()) break;
+			} else {
+				// Draw game-over, noughts wins
+				// TODO
+				// Then wait for touch to return to main menu
+				if (touchScreen.touched()) break;
+			}
+		}
 	}
 }
 
@@ -447,13 +464,6 @@ void setup() {
 
 void loop() {
 
-	if (!touchScreen.touched()) return;
-
-	//  TS_Point point = getPoint();
-	//
-	//  SerialUSB.println(
-	//      "screen pressed at: (" + (String) point.x + "," + (String) point.y + ")");
-	SerialUSB.println(F("loooop"));
-	delay(100);
+	startScreen();
 
 }
