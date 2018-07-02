@@ -9,11 +9,7 @@
  Using Adafruit TFT Capacitive Touch Shield and Arduino M0 Pro
 
  WIP:
- - Settings
-   - Game wins for match win
- - Match win banner
  - Quantum Tic-Tac-Toe
- - X should move first
  - Consider better implementations
 
  Written by Sam Ellis
@@ -102,43 +98,43 @@ void drawBitmap(char fileInput, int16_t x, int16_t y) {
 
 	if ((x >= tftDisplay.width()) || (y >= tftDisplay.height())) return;
 
-	SerialUSB.println();
-	SerialUSB.print(F("Loading image '"));
-	SerialUSB.print(filename);
-	SerialUSB.println('\'');
+	Serial.println();
+	Serial.print(F("Loading image '"));
+	Serial.print(filename);
+	Serial.println('\'');
 
 	// Todo (BROKEN)
 	// Open requested file on SD card
 	if ((bmpFile = SD.open(filename))) {
-		SerialUSB.println(F("File (maybe) not found"));
+		Serial.println(F("File (maybe) not found"));
 		// return;
 	}
 
 	// Parse BMP header
-	SerialUSB.println(F("Start parse"));
+	Serial.println(F("Start parse"));
 	if (read16(bmpFile) == 0x4D42) { // BMP signature
-		SerialUSB.print(F("File size: "));
-		SerialUSB.println(read32(bmpFile));
+		Serial.print(F("File size: "));
+		Serial.println(read32(bmpFile));
 		(void) read32(bmpFile); // Read & ignore creator bytes
 		bmpImageoffset = read32(bmpFile); // Start of image data
-		SerialUSB.print(F("Image Offset: "));
-		SerialUSB.println(bmpImageoffset, DEC);
+		Serial.print(F("Image Offset: "));
+		Serial.println(bmpImageoffset, DEC);
 		// Read DIB header
-		SerialUSB.print(F("Header size: "));
-		SerialUSB.println(read32(bmpFile));
+		Serial.print(F("Header size: "));
+		Serial.println(read32(bmpFile));
 		bmpWidth = read32(bmpFile);
 		bmpHeight = read32(bmpFile);
 		if (read16(bmpFile) == 1) { // # planes -- must be '1'
 			bmpDepth = read16(bmpFile); // bits per pixel
-			SerialUSB.print(F("Bit Depth: "));
-			SerialUSB.println(bmpDepth);
+			Serial.print(F("Bit Depth: "));
+			Serial.println(bmpDepth);
 			if ((bmpDepth == 24) && (read32(bmpFile) == 0)) { // 0 = uncompressed
 
 				goodBmp = true; // Supported BMP format -- proceed!
-				SerialUSB.print(F("Image size: "));
-				SerialUSB.print(bmpWidth);
-				SerialUSB.print('x');
-				SerialUSB.println(bmpHeight);
+				Serial.print(F("Image size: "));
+				Serial.print(bmpWidth);
+				Serial.print('x');
+				Serial.println(bmpHeight);
 
 				// BMP rows are padded (if needed) to 4-byte boundary
 				rowSize = (bmpWidth * 3 + 3) & ~3;
@@ -211,17 +207,17 @@ void drawBitmap(char fileInput, int16_t x, int16_t y) {
 					} // end scanline
 					tftDisplay.endWrite(); // End last tftDisplay transaction
 				} // end onscreen
-				SerialUSB.print(F("Loaded in "));
-				SerialUSB.print(millis() - startTime);
-				SerialUSB.println(F(" ms"));
+				Serial.print(F("Loaded in "));
+				Serial.print(millis() - startTime);
+				Serial.println(F(" ms"));
 			} // end goodBmp
 		}
 	}
 
 	bmpFile.close();
 	if (!goodBmp)
-	SerialUSB.println(F("BMP format not recognized or SD not mounted"));
-	SerialUSB.println();
+	Serial.println(F("BMP format not recognized or SD not mounted"));
+	Serial.println();
 }
 
 TS_Point getPoint() {
@@ -235,10 +231,10 @@ TS_Point getPoint() {
 // Function allows recycling
 State addMove(uint8_t square, TS_Point marker, State player) {
 	char bitmap;
-	SerialUSB.print(F("addMove, player = "));
-	SerialUSB.println(player);
+	Serial.print(F("addMove, player = "));
+	Serial.println(player);
 	if (player == cross) {
-		SerialUSB.println(F("this might be a cross"));
+		Serial.println(F("this might be a cross"));
 		if (square % 2) {
 			bitmap = 'j';
 			} else {
@@ -247,7 +243,7 @@ State addMove(uint8_t square, TS_Point marker, State player) {
 		player = nought;
 		drawBitmap(bitmap, marker.x, marker.y);
 		} else {
-		SerialUSB.println(F("this might be a nought"));
+		Serial.println(F("this might be a nought"));
 		if (square % 2) {
 			bitmap = 'h';
 			} else {
@@ -286,7 +282,7 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
 			if (!touchScreen.touched()) continue;
 			TS_Point point = getPoint();
 			if (verbose)
-			SerialUSB.println(
+			Serial.println(
 			(String) F("screen pressed at: (") + (String) point.x + ","
 			+ (String) point.y + (String) F(")"));
 			if (point.y > 79 and point.y < 161) {
@@ -349,8 +345,8 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
 				winner = boardState[winIndexes[i][0]];
 			}
 		}
-		SerialUSB.print(F("winner = "));
-		SerialUSB.println(winner);
+		Serial.print(F("winner = "));
+		Serial.println(winner);
 		if (!(winner == empty)) break;
 		delay(100);
 	}
@@ -396,25 +392,42 @@ void playMatch(int maxGames) {
 		
 		// If there are still games to be played draw win banner,
 		// otherwise draw end game screen
-		
-		// SHOULD CHECK TO SEE IF SOMEONE HAS WON
-		// TODO
 		uint8_t gamesToWin = (maxGames / 2) + 1;
-		if (gamesPlayed < maxGames) {
+		if (noughtsScore < gamesToWin && crossesScore < gamesToWin) {
 			drawBitmap(bitmap, 0, 110);
 			while (true)
 			if (touchScreen.touched()) break;
 		} else {
 			if (crossesScore > noughtsScore) {
 				// Draw game-over, crosses wins
-				// TODO
-				// Then wait for touch to return to main menu
-				if (touchScreen.touched()) break;
+				drawBitmap('m', 0, 0);
+				// Then wait button press to return to main menu
+				while (true) {
+					if (touchScreen.touched()) {
+						TS_Point point = getPoint();
+						if (point.x > 22 and point.x < 216 and point.y > 185 and point.y < 265) {
+							// They pressed the start button
+							break;
+						}
+					} else {
+						continue;
+					}
+				}
 			} else {
 				// Draw game-over, noughts wins
-				// TODO
-				// Then wait for touch to return to main menu
-				if (touchScreen.touched()) break;
+				drawBitmap('n', 0, 0);
+				// Then wait button press to return to main menu
+				while (true) {
+					if (touchScreen.touched()) {
+						TS_Point point = getPoint();
+						if (point.x > 22 and point.x < 216 and point.y > 185 and point.y < 265) {
+							// They pressed the start button
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -423,16 +436,37 @@ void playMatch(int maxGames) {
 void startScreen() {
 	uint8_t maxGames = 3;
 	drawBitmap('l', 0, 0);
+	String s = (String) maxGames;
+	char maxGamesChar = s.charAt(0);
+	drawBitmap(maxGamesChar, 173, 149);
 
 	while (true) {
 		if (touchScreen.touched()) {
 			TS_Point point = getPoint();
-			if (point.x > 24 and point.x < 216 and point.y > 204 and point.y < 256) {
+			if (point.x > 22 and point.x < 216 and point.y > 205 and point.y < 305) {
 				// They pressed the start button
 				break;
+			} else if (point.x > 100 and point.x < 180 and point.y > 100 and point.y < 220) {
+				// They press the left "best of:" button
+				if (maxGames != 1) {
+					maxGames -= 2;
+					// Update score
+					String s = (String) maxGames;
+					char maxGamesChar = s.charAt(0);
+					drawBitmap(maxGamesChar, 173, 149);
+					}
+				continue;
+			} else if (point.x > 180 and point.x < 241 and point.y > 100 and point.y < 220) {
+				// They press the left "best of:" button
+				if (maxGames != 9) {
+					maxGames += 2;
+					// Update score
+					String s = (String) maxGames;
+					char maxGamesChar = s.charAt(0);
+					drawBitmap(maxGamesChar, 173, 149);
+				}
+				continue;
 			} else {
-				// Check for "best of: x" change
-				// TODO
 				continue;
 			}
 		} else {
@@ -446,21 +480,21 @@ void startScreen() {
 
 void setup() {
 
-	SerialUSB.begin(9600);
+	Serial.begin(9600);
 
 	tftDisplay.begin();
 
 	if (!touchScreen.begin()) {
-		SerialUSB.println(F("Couldn't start FT6206 touchscreen controller"));
-		SerialUSB.println(F("Driver might not have been found"));
+		Serial.println(F("Couldn't start FT6206 touchscreen controller"));
+		Serial.println(F("Driver might not have been found"));
 		while (true);
 	}
 
-	if (verbose) SerialUSB.println(F("Display and touchscreen started"));
+	if (verbose) Serial.println(F("Display and touchscreen started"));
 
 	if (!SD.begin(SD_CS)) {
-		SerialUSB.println(F("Failed to initialise SD card"));
-	} else if (verbose) SerialUSB.println(F("SD card mounted"));
+		Serial.println(F("Failed to initialise SD card"));
+	} else if (verbose) Serial.println(F("SD card mounted"));
 
 	// tests();
 
