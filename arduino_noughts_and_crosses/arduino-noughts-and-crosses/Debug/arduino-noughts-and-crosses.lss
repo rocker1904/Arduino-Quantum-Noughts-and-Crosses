@@ -27,11 +27,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  11 .debug_line   000193f3  00000000  00000000  0011255a  2**0
                   CONTENTS, READONLY, DEBUGGING
+<<<<<<< Updated upstream
  12 .debug_str    0008760b  00000000  00000000  0012b94d  2**0
                   CONTENTS, READONLY, DEBUGGING
  13 .debug_frame  00004008  00000000  00000000  001b2f58  2**2
                   CONTENTS, READONLY, DEBUGGING
  14 .stabstr      000001b9  00000000  00000000  001b6f60  2**0
+=======
+ 12 .debug_str    000875b0  00000000  00000000  0012b520  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 13 .debug_frame  0000400c  00000000  00000000  001b2ad0  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 14 .stabstr      000001b9  00000000  00000000  001b6adc  2**0
+>>>>>>> Stashed changes
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
