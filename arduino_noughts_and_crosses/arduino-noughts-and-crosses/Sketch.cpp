@@ -4,16 +4,16 @@
 /*End of auto generated code by Atmel studio */
 
 /***************************************************
- Touchscreen Noughts and Crosses Project
+Touchscreen Noughts and Crosses Project
 
- Using Adafruit TFT Capacitive Touch Shield and Arduino M0 Pro
+Using Adafruit TFT Capacitive Touch Shield and Arduino M0 Pro
 
- WIP:
- - Quantum Tic-Tac-Toe
- - Consider better implementations
+WIP:
+- Quantum Tic-Tac-Toe
+- Consider better implementations
 
- Written by Sam Ellis
- ****************************************************/
+Written by Sam Ellis
+****************************************************/
 
 #include <SPI.h>    // Communication with display
 #include <Adafruit_GFX.h>   // Graphics library
@@ -59,7 +59,7 @@ Adafruit_FT6206 touchScreen = Adafruit_FT6206();
 // Array of arrays of three indexes in a row on a 3x3 grid
 uint8_t winIndexes[][3] = { {0, 4, 8}, {2, 4, 6}, {0, 1, 2}, {3, 4, 5},
 {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}};
-	
+
 // These read 16-bit and 32-bit types from the SD card file.
 // BMP data is stored little-endian, Arduino is little-endian too.
 // May need to reverse subscript order if porting elsewhere.
@@ -228,7 +228,7 @@ TS_Point getPoint() {
 	return point;
 }
 
-// Function allows recycling
+
 State addMove(uint8_t square, TS_Point marker, State player) {
 	char bitmap;
 	Serial.print(F("addMove, player = "));
@@ -240,8 +240,9 @@ State addMove(uint8_t square, TS_Point marker, State player) {
 			} else {
 			bitmap = 'k';
 		}
-		player = nought;
 		drawBitmap(bitmap, marker.x, marker.y);
+		// Change players
+		player = nought;
 		} else {
 		Serial.println(F("this might be a nought"));
 		if (square % 2) {
@@ -249,8 +250,9 @@ State addMove(uint8_t square, TS_Point marker, State player) {
 			} else {
 			bitmap = 'i';
 		}
-		player = cross;
 		drawBitmap(bitmap, marker.x - 2, marker.y);
+		// Change players
+		player = cross;
 	}
 	return player;
 }
@@ -264,6 +266,108 @@ void updateScore(int noughtsScore, int crossesScore) {
 	drawBitmap(newScore, 132, 28);
 }
 
+uint8_t getSquare(TS_Point point) {
+	uint8_t square = 255;
+	if (point.y > 79 && point.y < 161) {
+		if (point.x < 81) {
+			square = 0;
+			} else if (point.x < 161) {
+			square = 1;
+			} else if (point.x < 240) {
+			square = 2;
+		}
+
+		} else if (point.y > 160 && point.y < 241) {
+		if (point.x < 81) {
+			square = 3;
+			} else if (point.x < 161) {
+			square = 4;
+			} else if (point.x < 240) {
+			square = 5;
+		}
+
+		} else if (point.y > 240) {
+		if (point.x < 81) {
+			square = 6;
+			} else if (point.x < 161) {
+			square = 7;
+			} else if (point.x < 240) {
+			square = 8;
+		}
+	}
+	return square;
+}
+
+TS_Point getCounterPosition(TS_Point point) {
+	TS_Point counterPos;
+	if (point.y > 79 && point.y < 161) {
+		if (point.x < 81) {
+			counterPos.x = 15;
+			} else if (point.x < 161) {
+			counterPos.x = 95;
+			} else if (point.x < 240) {
+			counterPos.x = 175;
+		}
+		counterPos.y = 95;
+
+		} else if (point.y > 160 && point.y < 241) {
+		if (point.x < 81) {
+			counterPos.x = 15;
+			} else if (point.x < 161) {
+			counterPos.x = 95;
+			} else if (point.x < 240) {
+			counterPos.x = 175;
+		}
+		counterPos.y = 175;
+
+		} else if (point.y > 240) {
+		if (point.x < 81) {
+			counterPos.x = 15;
+			} else if (point.x < 161) {
+			counterPos.x = 95;
+			} else if (point.x < 240) {
+			counterPos.x = 175;
+		}
+		counterPos.y = 255;
+	}
+	return counterPos;
+}
+
+TS_Point getSmallCounterPosition(uint8_t square, uint8_t turn) {
+	TS_Point counterPos;
+	
+	// TODO
+	
+	return counterPos;
+}
+
+void drawSmallCounter(TS_Point counterPos, uint8_t turn) {
+	char bitmap[] = {'c', ((String) turn).charAt(0)};
+	drawBitmap(bitmap, counterPos.x, counterPos.y);
+}
+
+boolean checkForCircle(uint8_t boardState[][], uint8_t x, uint8_t y, uint8_t origX) {
+	// For each of the possible small counters in this square
+	for (uint8_t i = 0; i < 9; i++) {
+		// Find any counters that exist and aren't the current counter
+		if (boardState[x][i + 2] != 0 && i + 2 != y) {
+			// Find the pair counter of the one found
+			// By going through all the squares
+			for (uint8_t j = 0; j < 9; j++) {
+				// And finding a counter that isn't the current one
+				if (boardState[j][i + 2] != 0 && j != x) {
+					// Check if this is the original square
+					if (j == origX) return true;
+					// If not repeat for the next counter
+					if (checkForCircle(boardState, j, i + 2, origX)) return true;
+				}
+			}
+		}
+	}
+	
+	return false;
+}
+
 State game(uint8_t noughtsScore, uint8_t crossesScore) {
 	State player = cross;
 	State boardState[9] = {empty, empty, empty, empty, empty, empty, empty, empty,
@@ -271,59 +375,22 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
 	State winner = empty;
 	uint8_t placedCounters = 0;
 	uint8_t square = 255;
-	TS_Point marker;
+	TS_Point newCounterPos;
 
 	// Draw grid
 	drawBitmap('d', 0, 80);
 
-	// Start match
+	// Start game
 	while (placedCounters < 9) {
 		while (true) {
 			if (!touchScreen.touched()) continue;
-			TS_Point point = getPoint();
+			TS_Point pointTouched = getPoint();
 			if (verbose)
 			Serial.println(
-			(String) F("screen pressed at: (") + (String) point.x + ","
-			+ (String) point.y + (String) F(")"));
-			if (point.y > 79 and point.y < 161) {
-				if (point.x < 81) {
-					square = 0;
-					marker.x = 15;
-					} else if (point.x < 161) {
-					square = 1;
-					marker.x = 95;
-					} else if (point.x < 240) {
-					square = 2;
-					marker.x = 175;
-				}
-				marker.y = 95;
-
-				} else if (point.y > 160 and point.y < 241) {
-				if (point.x < 81) {
-					square = 3;
-					marker.x = 15;
-					} else if (point.x < 161) {
-					square = 4;
-					marker.x = 95;
-					} else if (point.x < 240) {
-					square = 5;
-					marker.x = 175;
-				}
-				marker.y = 175;
-
-				} else if (point.y > 240) {
-				if (point.x < 81) {
-					square = 6;
-					marker.x = 15;
-					} else if (point.x < 161) {
-					square = 7;
-					marker.x = 95;
-					} else if (point.x < 240) {
-					square = 8;
-					marker.x = 175;
-				}
-				marker.y = 255;
-			}
+			(String) F("screen pressed at: (") + (String) pointTouched.x + ","
+			+ (String) pointTouched.y + (String) F(")"));
+			newCounterPos = getCounterPosition(pointTouched);
+			square = getSquare(pointTouched);
 			if (!(square == 255)) break;
 		}
 
@@ -334,20 +401,120 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
 		boardState[square] = player;
 
 		// Draw nought or cross on selected square and swap player
-		player = addMove(square, marker, player);
+		player = addMove(square, newCounterPos, player);
 		placedCounters++;
 
 		// Check to see if someone has won
 		for (uint8_t i = 0; i < 8; i++) {
 			if (boardState[winIndexes[i][0]] == boardState[winIndexes[i][1]]
-			and boardState[winIndexes[i][0]] == boardState[winIndexes[i][2]]
-			and boardState[winIndexes[i][0]] != empty) {
+			&& boardState[winIndexes[i][0]] == boardState[winIndexes[i][2]]
+			&& boardState[winIndexes[i][0]] != empty) {
 				winner = boardState[winIndexes[i][0]];
 			}
 		}
 		Serial.print(F("winner = "));
 		Serial.println(winner);
 		if (!(winner == empty)) break;
+		delay(100);
+	}
+	return winner;
+}
+
+uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
+	// 0 = none, 1 = cross, 2 = nought
+	uint8_t player = 1;
+	uint8_t turn = 0;
+	uint8_t winner = 0;
+	uint8_t boardState[9][11] = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+	uint8_t bigCounters = 0;
+	uint8_t square = 255;
+	TS_Point newCounterPos;
+
+	// Draw grid
+	drawBitmap('d', 0, 80);
+
+	// Start match
+	while (bigCounters < 9) {
+		uint8_t countersThisTurn = 0;
+		while (countersThisTurn < 2) {
+			while (true) {
+				if (!touchScreen.touched()) continue;
+				TS_Point pointTouched = getPoint();
+				if (verbose)
+				Serial.println(
+				(String) F("screen pressed at: (") + (String) pointTouched.x + ","
+				+ (String) pointTouched.y + (String) F(")"));
+				square = getSquare(pointTouched);
+				newCounterPos = getSmallCounterPosition(square, turn);
+				if (!(square == 255)) break;
+			}
+
+			// Check to see if selected square is occupied
+			if (!(boardState[square][0] == 0)) continue;
+
+			// Update board state
+			boardState[square][turn + 2] = player;
+		
+
+			// Draw small nought or cross on selected square
+			drawSmallCounter(newCounterPos, turn);
+			
+			countersThisTurn++;
+		}
+		
+		// Check for measurement
+		boolean circle = checkForCircle(boardState, square, turn + 2, square);
+		if (!circle) continue;
+			
+		// Ask user how to resolve
+
+
+		// Turn to classical counters
+
+
+		// winningRows[x][0] = winner
+		// winningRows[x][1] = subscript total
+		uint8_t winningRows[3][2] = {{0, 0}, {0, 0}, {0, 0}};
+		uint8_t numOfWinningRows = 0;
+		// Check to see if someone has won
+		for (uint8_t i = 0; i < 8; i++) {
+			if (boardState[winIndexes[i][0]][0] == boardState[winIndexes[i][1]][0]
+			&& boardState[winIndexes[i][0]][0] == boardState[winIndexes[i][2]][0]
+			&& boardState[winIndexes[i][0]][0] != 0) {
+				// Someone has won
+				
+				// Add the player that won to winningRows
+				winningRows[numOfWinningRows][0] = player;
+				
+				// Total the subscripts and store in winningRows
+				uint8_t subscriptTotal = 0;
+				for (uint8_t j = 0; j < 3; j++) {
+					subscriptTotal += boardState[winIndexes[i][j]][1];
+				}
+				winningRows[numOfWinningRows][1] = subscriptTotal;
+				numOfWinningRows++;
+			}
+		}
+		
+		// Find the winner if one exists
+		uint8_t highestSubscript = 0;
+		for (uint8_t i = 0; i < 3; i++) {
+			if (winningRows[i][1] > highestSubscript) {
+				winner = winningRows[i][0];
+				highestSubscript = winningRows[i][1];
+			}
+		}
+		
+		Serial.print(F("winner = "));
+		Serial.println(winner);
+		if (winner != 0) break;
+		
+		// TODO: Test removing this delay
+		
+		turn++;
 		delay(100);
 	}
 	return winner;
@@ -395,9 +562,8 @@ void playMatch(int maxGames) {
 		uint8_t gamesToWin = (maxGames / 2) + 1;
 		if (noughtsScore < gamesToWin && crossesScore < gamesToWin) {
 			drawBitmap(bitmap, 0, 110);
-			while (true)
-			if (touchScreen.touched()) break;
-		} else {
+			while (true) if (touchScreen.touched()) break;
+			} else {
 			if (crossesScore > noughtsScore) {
 				// Draw game-over, crosses wins
 				drawBitmap('m', 0, 0);
@@ -405,25 +571,25 @@ void playMatch(int maxGames) {
 				while (true) {
 					if (touchScreen.touched()) {
 						TS_Point point = getPoint();
-						if (point.x > 22 and point.x < 216 and point.y > 185 and point.y < 265) {
+						if (point.x > 22 && point.x < 216 && point.y > 185 && point.y < 265) {
 							// They pressed the start button
-							break;
+							goto exit;
 						}
-					} else {
+						} else {
 						continue;
 					}
 				}
-			} else {
+				} else {
 				// Draw game-over, noughts wins
 				drawBitmap('n', 0, 0);
 				// Then wait button press to return to main menu
 				while (true) {
 					if (touchScreen.touched()) {
 						TS_Point point = getPoint();
-						if (point.x > 22 and point.x < 216 and point.y > 185 and point.y < 265) {
+						if (point.x > 22 && point.x < 216 && point.y > 185 && point.y < 265) {
 							// They pressed the start button
-							break;
-						} else {
+							goto exit;
+							} else {
 							continue;
 						}
 					}
@@ -431,22 +597,107 @@ void playMatch(int maxGames) {
 			}
 		}
 	}
+	exit:
+	Serial.println("Broke while loop");
+}
+
+void playQuantumMatch(int maxGames) {
+	uint8_t noughtsScore = 0;
+	uint8_t crossesScore = 0;
+	uint8_t gamesPlayed = 0;
+
+	// Draw score bar for match
+	drawBitmap('a', 0, 0);
+	drawBitmap('c', 118, 32);
+	updateScore(noughtsScore, crossesScore);
+	drawBitmap('b', 81, 10);
+
+	while (gamesPlayed < maxGames) {
+		State winner = game(noughtsScore, crossesScore);
+
+		// Select win banner and add to winners score
+		char bitmap;
+		switch (winner) {
+			case cross:
+			// Crosses wins
+			bitmap = 'e';
+			crossesScore++;
+			gamesPlayed++;
+			break;
+			case nought:
+			// Noughts wins
+			bitmap = 'g';
+			noughtsScore++;
+			gamesPlayed++;
+			break;
+			case empty:
+			// Game is a draw
+			bitmap = 'f';
+			break;
+		}
+		
+		updateScore(noughtsScore, crossesScore);
+		
+		// If there are still games to be played draw win banner,
+		// otherwise draw end game screen
+		uint8_t gamesToWin = (maxGames / 2) + 1;
+		if (noughtsScore < gamesToWin && crossesScore < gamesToWin) {
+			drawBitmap(bitmap, 0, 110);
+			while (true) if (touchScreen.touched()) break;
+			} else {
+			if (crossesScore > noughtsScore) {
+				// Draw game-over, crosses wins
+				drawBitmap('m', 0, 0);
+				// Then wait button press to return to main menu
+				while (true) {
+					if (touchScreen.touched()) {
+						TS_Point point = getPoint();
+						if (point.x > 22 && point.x < 216 && point.y > 185 && point.y < 265) {
+							// They pressed the start button
+							goto exit;
+						}
+						} else {
+						continue;
+					}
+				}
+				} else {
+				// Draw game-over, noughts wins
+				drawBitmap('n', 0, 0);
+				// Then wait button press to return to main menu
+				while (true) {
+					if (touchScreen.touched()) {
+						TS_Point point = getPoint();
+						if (point.x > 22 && point.x < 216 && point.y > 185 && point.y < 265) {
+							// They pressed the start button
+							goto exit;
+							} else {
+							continue;
+						}
+					}
+				}
+			}
+		}
+	}
+	exit:
+	Serial.println("Broke while loop");
 }
 
 void startScreen() {
-	uint8_t maxGames = 3;
+	uint8_t maxGames = 1;
 	drawBitmap('l', 0, 0);
 	String s = (String) maxGames;
 	char maxGamesChar = s.charAt(0);
 	drawBitmap(maxGamesChar, 173, 149);
+	boolean quantumMatch;
 
 	while (true) {
 		if (touchScreen.touched()) {
 			TS_Point point = getPoint();
-			if (point.x > 22 and point.x < 216 and point.y > 205 and point.y < 305) {
+			if (point.x > 22 && point.x < 216 && point.y > 205 && point.y < 305) {
 				// They pressed the start button
+				quantumMatch = true;
 				break;
-			} else if (point.x > 100 and point.x < 180 and point.y > 100 and point.y < 220) {
+				} else if (point.x > 100 && point.x < 180 && point.y > 100 && point.y < 220) {
 				// They press the left "best of:" button
 				if (maxGames != 1) {
 					maxGames -= 2;
@@ -454,9 +705,9 @@ void startScreen() {
 					String s = (String) maxGames;
 					char maxGamesChar = s.charAt(0);
 					drawBitmap(maxGamesChar, 173, 149);
-					}
+				}
 				continue;
-			} else if (point.x > 180 and point.x < 241 and point.y > 100 and point.y < 220) {
+				} else if (point.x > 180 && point.x < 241 && point.y > 100 && point.y < 220) {
 				// They press the left "best of:" button
 				if (maxGames != 9) {
 					maxGames += 2;
@@ -466,15 +717,20 @@ void startScreen() {
 					drawBitmap(maxGamesChar, 173, 149);
 				}
 				continue;
-			} else {
+				} else {
 				continue;
 			}
-		} else {
+			} else {
 			continue;
 		}
 	}
 	
-	playMatch(maxGames);
+	// TODO: Add selecting game-mode
+	if (quantumMatch) {
+		playQuantumMatch(maxGames);
+	} else {
+		playMatch(maxGames);
+	}
 
 }
 
