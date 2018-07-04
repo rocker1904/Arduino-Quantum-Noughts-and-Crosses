@@ -220,6 +220,145 @@ void drawBitmap(char fileInput, int16_t x, int16_t y) {
 	Serial.println();
 }
 
+void drawBitmap(char* filename, int16_t x, int16_t y) {
+
+	File bmpFile;
+	int bmpWidth, bmpHeight;   // W+H in pixels
+	uint8_t bmpDepth;              // Bit depth (currently must be 24)
+	uint32_t bmpImageoffset;        // Start of image data in file
+	uint32_t rowSize;               // Not always = bmpWidth; may have padding
+	uint8_t sdbuffer[3 * BUFFPIXEL]; // pixel buffer (R+G+B per pixel)
+	uint8_t buffidx = sizeof(sdbuffer); // Current position in sdbuffer
+	boolean goodBmp = false;       // Set to true on valid header parse
+	boolean flip = true;        // BMP is stored bottom-to-top
+	int w, h, row, col, x2, y2, bx1, by1;
+	uint8_t r, g, b;
+	uint32_t pos = 0, startTime = millis();
+
+	if ((x >= tftDisplay.width()) || (y >= tftDisplay.height())) return;
+
+	Serial.println();
+	Serial.print(F("Loading image '"));
+	Serial.print(filename);
+	Serial.println('\'');
+
+	// Todo (BROKEN)
+	// Open requested file on SD card
+	if ((bmpFile = SD.open(filename))) {
+		Serial.println(F("File (maybe) not found"));
+		// return;
+	}
+
+	// Parse BMP header
+	Serial.println(F("Start parse"));
+	if (read16(bmpFile) == 0x4D42) { // BMP signature
+		Serial.print(F("File size: "));
+		Serial.println(read32(bmpFile));
+		(void) read32(bmpFile); // Read & ignore creator bytes
+		bmpImageoffset = read32(bmpFile); // Start of image data
+		Serial.print(F("Image Offset: "));
+		Serial.println(bmpImageoffset, DEC);
+		// Read DIB header
+		Serial.print(F("Header size: "));
+		Serial.println(read32(bmpFile));
+		bmpWidth = read32(bmpFile);
+		bmpHeight = read32(bmpFile);
+		if (read16(bmpFile) == 1) { // # planes -- must be '1'
+			bmpDepth = read16(bmpFile); // bits per pixel
+			Serial.print(F("Bit Depth: "));
+			Serial.println(bmpDepth);
+			if ((bmpDepth == 24) && (read32(bmpFile) == 0)) { // 0 = uncompressed
+
+				goodBmp = true; // Supported BMP format -- proceed!
+				Serial.print(F("Image size: "));
+				Serial.print(bmpWidth);
+				Serial.print('x');
+				Serial.println(bmpHeight);
+
+				// BMP rows are padded (if needed) to 4-byte boundary
+				rowSize = (bmpWidth * 3 + 3) & ~3;
+
+				// If bmpHeight is negative, image is in top-down order.
+				// This is not canon but has been observed in the wild.
+				if (bmpHeight < 0) {
+					bmpHeight = -bmpHeight;
+					flip = false;
+				}
+
+				// Crop area to be loaded
+				x2 = x + bmpWidth - 1; // Lower-right corner
+				y2 = y + bmpHeight - 1;
+				if ((x2 >= 0) && (y2 >= 0)) { // On screen?
+					w = bmpWidth; // Width/height of section to load/display
+					h = bmpHeight;
+					bx1 = by1 = 0; // UL coordinate in BMP file
+					if (x < 0) { // Clip left
+						bx1 = -x;
+						x = 0;
+						w = x2 + 1;
+					}
+					if (y < 0) { // Clip top
+						by1 = -y;
+						y = 0;
+						h = y2 + 1;
+					}
+					if (x2 >= tftDisplay.width()) w = tftDisplay.width() - x; // Clip right
+					if (y2 >= tftDisplay.height()) h = tftDisplay.height() - y; // Clip bottom
+
+					// Set tftDisplay address window to clipped image bounds
+					tftDisplay.startWrite(); // Requires start/end transaction now
+					tftDisplay.setAddrWindow(x, y, w, h);
+
+					for (row = 0; row < h; row++) { // For each scanline...
+
+						// Seek to start of scan line.  It might seem labor-
+						// intensive to be doing this on every line, but this
+						// method covers a lot of gritty details like cropping
+						// and scanline padding.  Also, the seek only takes
+						// place if the file position actually needs to change
+						// (avoids a lot of cluster math in SD library).
+						if (flip) // Bitmap is stored bottom-to-top order (normal BMP)
+						pos = bmpImageoffset + (bmpHeight - 1 - (row + by1)) * rowSize;
+						else
+						// Bitmap is stored top-to-bottom
+						pos = bmpImageoffset + (row + by1) * rowSize;
+						pos += bx1 * 3; // Factor in starting column (bx1)
+						if (bmpFile.position() != pos) { // Need seek?
+							tftDisplay.endWrite(); // End tftDisplay transaction
+							bmpFile.seek(pos);
+							buffidx = sizeof(sdbuffer); // Force buffer reload
+							tftDisplay.startWrite(); // Start new tftDisplay transaction
+						}
+						for (col = 0; col < w; col++) { // For each pixel...
+							// Time to read more pixel data?
+							if (buffidx >= sizeof(sdbuffer)) { // Indeed
+								tftDisplay.endWrite(); // End tftDisplay transaction
+								bmpFile.read(sdbuffer, sizeof(sdbuffer));
+								buffidx = 0; // Set index to beginning
+								tftDisplay.startWrite(); // Start new tftDisplay transaction
+							}
+							// Convert pixel from BMP to tftDisplay format, push to display
+							b = sdbuffer[buffidx++];
+							g = sdbuffer[buffidx++];
+							r = sdbuffer[buffidx++];
+							tftDisplay.writePixel(tftDisplay.color565(r, g, b));
+						} // end pixel
+					} // end scanline
+					tftDisplay.endWrite(); // End last tftDisplay transaction
+				} // end onscreen
+				Serial.print(F("Loaded in "));
+				Serial.print(millis() - startTime);
+				Serial.println(F(" ms"));
+			} // end goodBmp
+		}
+	}
+
+	bmpFile.close();
+	if (!goodBmp)
+	Serial.println(F("BMP format not recognized or SD not mounted"));
+	Serial.println();
+}
+
 TS_Point getPoint() {
 	TS_Point point = touchScreen.getPoint();
 	// convert point to match display coordinate system
@@ -298,55 +437,59 @@ uint8_t getSquare(TS_Point point) {
 	return square;
 }
 
-TS_Point getCounterPosition(TS_Point point) {
+TS_Point getCounterPosition(uint8_t square) {
 	TS_Point counterPos;
-	if (point.y > 79 && point.y < 161) {
-		if (point.x < 81) {
-			counterPos.x = 15;
-			} else if (point.x < 161) {
-			counterPos.x = 95;
-			} else if (point.x < 240) {
-			counterPos.x = 175;
-		}
-		counterPos.y = 95;
-
-		} else if (point.y > 160 && point.y < 241) {
-		if (point.x < 81) {
-			counterPos.x = 15;
-			} else if (point.x < 161) {
-			counterPos.x = 95;
-			} else if (point.x < 240) {
-			counterPos.x = 175;
-		}
-		counterPos.y = 175;
-
-		} else if (point.y > 240) {
-		if (point.x < 81) {
-			counterPos.x = 15;
-			} else if (point.x < 161) {
-			counterPos.x = 95;
-			} else if (point.x < 240) {
-			counterPos.x = 175;
-		}
-		counterPos.y = 255;
+	if (square == 0 || square == 3 || square == 6) {
+		counterPos.x = 0;
+	} else if (square == 1 || square == 4 || square == 7) {
+		counterPos.x = 80;
+	} else {
+		counterPos.x = 160;
+	}
+	
+	if (square == 0 || square == 1 || square == 2) {
+		counterPos.y = 80;
+	} else if (square == 3 || square == 4 || square == 5) {
+		counterPos.y = 160;
+	} else {
+		counterPos.y = 240;
 	}
 	return counterPos;
 }
 
-TS_Point getSmallCounterPosition(uint8_t square, uint8_t turn) {
+void drawSmallCounter(uint8_t square, uint8_t turn) {
 	TS_Point counterPos;
 	
-	// TODO
+	counterPos = getCounterPosition(square);
 	
-	return counterPos;
-}
-
-void drawSmallCounter(TS_Point counterPos, uint8_t turn) {
-	char bitmap[] = {'c', ((String) turn).charAt(0)};
+	if (turn == 1 || turn == 4 || turn == 7) {
+		counterPos.x += 1;
+	} else if (turn == 2 || turn == 5 || turn == 8) {
+		counterPos.x += 27;
+	} else {
+		counterPos.x += 53;
+	}
+	
+	if (turn == 1 || turn == 2 || turn == 3) {
+		counterPos.y += 1;
+	} else if (turn == 4 || turn == 5 || turn == 6) {
+		counterPos.y += 27;
+	} else {
+		counterPos.y += 53;
+	}
+	
+	char bg;
+	if (square % 2) {
+		bg = 'b';
+	} else {
+		bg = 'w';
+	}
+	
+	char bitmap[8] = {bg, 'c', ((String) turn).charAt(0), '.', 'b', 'm', 'p'};
 	drawBitmap(bitmap, counterPos.x, counterPos.y);
 }
 
-boolean checkForCircle(uint8_t boardState[][], uint8_t x, uint8_t y, uint8_t origX) {
+void checkForCircle(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t origX, uint8_t subscripts[9]) {
 	// For each of the possible small counters in this square
 	for (uint8_t i = 0; i < 9; i++) {
 		// Find any counters that exist and aren't the current counter
@@ -357,15 +500,26 @@ boolean checkForCircle(uint8_t boardState[][], uint8_t x, uint8_t y, uint8_t ori
 				// And finding a counter that isn't the current one
 				if (boardState[j][i + 2] != 0 && j != x) {
 					// Check if this is the original square
-					if (j == origX) return true;
+					if (j == origX) {
+						subscripts[0] = y - 1;
+						return;
+					}
 					// If not repeat for the next counter
-					if (checkForCircle(boardState, j, i + 2, origX)) return true;
+					checkForCircle(boardState, j, i + 2, origX, subscripts);
+					// When the function returns, check if it found the original square
+					if (subscripts[0] != 255) {
+						// If it did add the return the array of subscripts with this point added
+						for (uint8_t k = 0; k < 9; k++) {
+							if (subscripts[k] == 255) {
+								subscripts[k] = y - 1;
+								return;
+							}
+						}
+					}
 				}
 			}
 		}
 	}
-	
-	return false;
 }
 
 State game(uint8_t noughtsScore, uint8_t crossesScore) {
@@ -389,8 +543,8 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
 			Serial.println(
 			(String) F("screen pressed at: (") + (String) pointTouched.x + ","
 			+ (String) pointTouched.y + (String) F(")"));
-			newCounterPos = getCounterPosition(pointTouched);
 			square = getSquare(pointTouched);
+			newCounterPos = getCounterPosition(square);
 			if (!(square == 255)) break;
 		}
 
@@ -423,7 +577,7 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
 uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 	// 0 = none, 1 = cross, 2 = nought
 	uint8_t player = 1;
-	uint8_t turn = 0;
+	uint8_t turn = 1;
 	uint8_t winner = 0;
 	uint8_t boardState[9][11] = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -448,7 +602,6 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 				(String) F("screen pressed at: (") + (String) pointTouched.x + ","
 				+ (String) pointTouched.y + (String) F(")"));
 				square = getSquare(pointTouched);
-				newCounterPos = getSmallCounterPosition(square, turn);
 				if (!(square == 255)) break;
 			}
 
@@ -456,25 +609,27 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 			if (!(boardState[square][0] == 0)) continue;
 
 			// Update board state
-			boardState[square][turn + 2] = player;
+			boardState[square][turn + 1] = player;
 		
 
 			// Draw small nought or cross on selected square
-			drawSmallCounter(newCounterPos, turn);
+			drawSmallCounter(square, turn);
 			
 			countersThisTurn++;
 		}
 		
 		// Check for measurement
-		boolean circle = checkForCircle(boardState, square, turn + 2, square);
-		if (!circle) continue;
+		uint8_t circle[9] = {255, 255, 255, 255, 255, 255, 255, 255, 255};
+		checkForCircle(boardState, square, turn + 1, square, circle);
+		if (circle[0] != 255) {
+			// Circle found
 			
-		// Ask user how to resolve
+			// Ask user how to resolve
 
 
-		// Turn to classical counters
-
-
+			// Turn to classical counters
+		} 
+		
 		// winningRows[x][0] = winner
 		// winningRows[x][1] = subscript total
 		uint8_t winningRows[3][2] = {{0, 0}, {0, 0}, {0, 0}};
@@ -613,24 +768,24 @@ void playQuantumMatch(int maxGames) {
 	drawBitmap('b', 81, 10);
 
 	while (gamesPlayed < maxGames) {
-		State winner = game(noughtsScore, crossesScore);
+		uint8_t winner = quantumGame(noughtsScore, crossesScore);
 
 		// Select win banner and add to winners score
 		char bitmap;
 		switch (winner) {
-			case cross:
+			case 1:
 			// Crosses wins
 			bitmap = 'e';
 			crossesScore++;
 			gamesPlayed++;
 			break;
-			case nought:
+			case 2:
 			// Noughts wins
 			bitmap = 'g';
 			noughtsScore++;
 			gamesPlayed++;
 			break;
-			case empty:
+			case 0:
 			// Game is a draw
 			bitmap = 'f';
 			break;
