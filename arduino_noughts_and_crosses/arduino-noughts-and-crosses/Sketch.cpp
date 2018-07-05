@@ -9,7 +9,7 @@ Touchscreen Noughts and Crosses Project
 Using Adafruit TFT Capacitive Touch Shield and Arduino M0 Pro
 
 WIP:
-- Quantum Tic-Tac-Toe
+- Minor improvements
 - Consider better implementations
 
 Written by Sam Ellis
@@ -26,18 +26,6 @@ Written by Sam Ellis
 enum State {
 	empty, nought, cross
 };
-
-//Beginning of Auto generated function prototypes by Atmel Studio
-void startScreen();
-void playMatch(int maxGames);
-State game(uint8_t noughtsScore, uint8_t crossesScore);
-void updateScore(int noughtsScore, int crossesScore);
-State addMove(uint8_t square, TS_Point marker, State player);
-TS_Point getPoint();
-void drawBitmap(char fileInput, int16_t x, int16_t y);
-uint16_t read16(File& f);
-uint32_t read32(File& f);
-//End of Auto generated function prototypes by Atmel Studio
 
 // Debugging
 #define verbose false
@@ -361,12 +349,11 @@ void drawBitmap(char* filename, int16_t x, int16_t y) {
 
 TS_Point getPoint() {
 	TS_Point point = touchScreen.getPoint();
-	// convert point to match display coordinate system
+	 // Map point so that coordinate system starts from top left
 	point.x = map(point.x, 0, 240, 240, 0);
 	point.y = map(point.y, 0, 320, 320, 0);
 	return point;
 }
-
 
 State addMove(uint8_t square, TS_Point marker, State player) {
 	char bitmap;
@@ -494,6 +481,7 @@ void drawSmallCounter(uint8_t square, uint8_t turn, boolean bold) {
 	}
 	
 	char type = 'c';
+	// TODO: Different coloured counters
 	if (bold) type = 'b';
 	
 	char bitmap[8] = {bg, type, ((String) turn).charAt(0), '.', 'b', 'm', 'p'};
@@ -533,7 +521,7 @@ void checkForCircle(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t ori
 	}
 }
 
-void drawClassicalCounters(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t origT) {
+void drawClassicalCounters(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t origX, uint8_t origY) {
 	// TODO: Add subscript to classic counters
 	// Draw classic counter
 	char bitmap;
@@ -566,7 +554,20 @@ void drawClassicalCounters(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint
 	boardState[x][0] = player;
 	boardState[x][1] = y;
 	
-	
+	for (uint8_t i = 0; i < 9; i++) {
+		if (boardState[x][i + 2] != 0 && i + 2 != y) {
+			// Runs when another counter is found in the same square
+			for (uint8_t j = 0; j < 9; j++) {
+				if (boardState[j][i + 2] != 0 && j != x) {
+					// Runs when pair is found at [j][i + 2]
+					if (j != origX && i + 2 != origY) {
+						// Runs if not the original counter
+						drawClassicalCounters(boardState, j, i + 2, origX, origY);
+					}
+				}
+			}
+		}
+	}
 }
 
 State game(uint8_t noughtsScore, uint8_t crossesScore) {
@@ -720,7 +721,7 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 
 			// Turn to classical counters
 			if (tappedSquare != 255) {
-				drawClassicalCounters(boardState, tappedSquare, turn + 1, turn + 1);
+				drawClassicalCounters(boardState, tappedSquare, turn + 1, tappedSquare, turn + 1);
 			} else {
 				Serial.println(F("Error"));
 			}
@@ -766,7 +767,7 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 		// TODO: Test removing this delay
 		
 		turn++;
-		delay(100);
+		(player == 1) ? player = 2 : player = 1;
 	}
 	return winner;
 }
@@ -933,7 +934,26 @@ void playQuantumMatch(int maxGames) {
 	Serial.println("Broke while loop");
 }
 
-void startScreen() {
+void setup() {
+
+	Serial.begin(9600);
+
+	tftDisplay.begin();
+
+	if (!touchScreen.begin()) {
+		Serial.println(F("Couldn't start FT6206 touchscreen controller"));
+		Serial.println(F("Driver might not have been found"));
+		while (true);
+	}
+
+	if (verbose) Serial.println(F("Display and touchscreen started"));
+
+	if (!SD.begin(SD_CS)) {
+		Serial.println(F("Failed to initialise SD card"));
+	} else if (verbose) Serial.println(F("SD card mounted"));
+}
+
+void loop() {
 	uint8_t maxGames = 1;
 	drawBitmap('l', 0, 0);
 	String s = (String) maxGames;
@@ -979,38 +999,7 @@ void startScreen() {
 	// TODO: Add selecting game-mode
 	if (quantumMatch) {
 		playQuantumMatch(maxGames);
-	} else {
+		} else {
 		playMatch(maxGames);
 	}
-
-}
-
-void setup() {
-
-	Serial.begin(9600);
-
-	tftDisplay.begin();
-
-	if (!touchScreen.begin()) {
-		Serial.println(F("Couldn't start FT6206 touchscreen controller"));
-		Serial.println(F("Driver might not have been found"));
-		while (true);
-	}
-
-	if (verbose) Serial.println(F("Display and touchscreen started"));
-
-	if (!SD.begin(SD_CS)) {
-		Serial.println(F("Failed to initialise SD card"));
-	} else if (verbose) Serial.println(F("SD card mounted"));
-
-	// tests();
-
-	startScreen();
-
-}
-
-void loop() {
-
-	startScreen();
-
 }
