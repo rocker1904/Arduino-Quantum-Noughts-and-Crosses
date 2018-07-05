@@ -541,23 +541,23 @@ void drawClassicalCounters(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint
 	if (x % 2) {
 		// black
 		if (y % 2) {
-			// An X
-			bitmap = 'j';
-			player = 1;
-		} else {
 			// An O
 			bitmap = 'h';
+			player = 1;
+		} else {
+			// An X
+			bitmap = 'j';
 			player = 2;
 		}
 	} else {
 		// white/blueish
 		if (y % 2) {
-			// An X
-			bitmap = 'k';
-			player = 1;
-		} else {
 			// An O
 			bitmap = 'i';
+			player = 1;
+		} else {
+			// An X
+			bitmap = 'k';
 			player = 2;
 		}
 	}
@@ -566,23 +566,7 @@ void drawClassicalCounters(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint
 	boardState[x][0] = player;
 	boardState[x][1] = y;
 	
-	// For each of the possible small counters in this square
-	for (uint8_t i = 0; i < 9; i++) {
-		// Find any counters that exist and aren't the current counter
-		if (boardState[x][i + 2] != 0 && i + 2 != y) {
-			// Find the pair counter of the one found
-			// By going through all the squares
-			for (uint8_t j = 0; j < 9; j++) {
-				// And finding a counter of the same subscript that isn't the current one
-				if (boardState[j][i + 2] != 0 && j != x) {
-					// Check if this is the original square
-					if (i + 1 == origT) continue;
-					// If not repeat for the next counter
-					drawClassicalCounters(boardState, j, i + 2, origT);
-				}
-			}
-		}
-	}
+	
 }
 
 State game(uint8_t noughtsScore, uint8_t crossesScore) {
