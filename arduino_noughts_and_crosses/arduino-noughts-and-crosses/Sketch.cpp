@@ -457,26 +457,34 @@ TS_Point getCounterPosition(uint8_t square) {
 	return counterPos;
 }
 
-void drawSmallCounter(uint8_t square, uint8_t turn) {
+TS_Point getSmallCounterPosition(uint8_t square, uint8_t turn) {
 	TS_Point counterPos;
 	
 	counterPos = getCounterPosition(square);
 	
 	if (turn == 1 || turn == 4 || turn == 7) {
 		counterPos.x += 1;
-	} else if (turn == 2 || turn == 5 || turn == 8) {
+		} else if (turn == 2 || turn == 5 || turn == 8) {
 		counterPos.x += 27;
-	} else {
+		} else {
 		counterPos.x += 53;
 	}
-	
+		
 	if (turn == 1 || turn == 2 || turn == 3) {
 		counterPos.y += 1;
-	} else if (turn == 4 || turn == 5 || turn == 6) {
+		} else if (turn == 4 || turn == 5 || turn == 6) {
 		counterPos.y += 27;
-	} else {
+		} else {
 		counterPos.y += 53;
 	}
+	
+	return counterPos;
+}
+
+void drawSmallCounter(uint8_t square, uint8_t turn, boolean bold) {
+	TS_Point counterPos;
+	
+	counterPos = getSmallCounterPosition(square, turn);
 	
 	char bg;
 	if (square % 2) {
@@ -485,7 +493,10 @@ void drawSmallCounter(uint8_t square, uint8_t turn) {
 		bg = 'w';
 	}
 	
-	char bitmap[8] = {bg, 'c', ((String) turn).charAt(0), '.', 'b', 'm', 'p'};
+	char type = 'c';
+	if (bold) type = 'b';
+	
+	char bitmap[8] = {bg, type, ((String) turn).charAt(0), '.', 'b', 'm', 'p'};
 	drawBitmap(bitmap, counterPos.x, counterPos.y);
 }
 
@@ -497,7 +508,7 @@ void checkForCircle(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t ori
 			// Find the pair counter of the one found
 			// By going through all the squares
 			for (uint8_t j = 0; j < 9; j++) {
-				// And finding a counter that isn't the current one
+				// And finding a counter of the same subscript that isn't the current one
 				if (boardState[j][i + 2] != 0 && j != x) {
 					// Check if this is the original square
 					if (j == origX) {
@@ -508,7 +519,7 @@ void checkForCircle(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t ori
 					checkForCircle(boardState, j, i + 2, origX, subscripts);
 					// When the function returns, check if it found the original square
 					if (subscripts[0] != 255) {
-						// If it did add the return the array of subscripts with this point added
+						// If it did add this point on the end
 						for (uint8_t k = 0; k < 9; k++) {
 							if (subscripts[k] == 255) {
 								subscripts[k] = y - 1;
@@ -516,6 +527,58 @@ void checkForCircle(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t ori
 							}
 						}
 					}
+				}
+			}
+		}
+	}
+}
+
+void drawClassicalCounters(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t origT) {
+	// TODO: Add subscript to classic counters
+	// Draw classic counter
+	char bitmap;
+	uint8_t player;
+	if (x % 2) {
+		// black
+		if (y % 2) {
+			// An X
+			bitmap = 'j';
+			player = 1;
+		} else {
+			// An O
+			bitmap = 'h';
+			player = 2;
+		}
+	} else {
+		// white/blueish
+		if (y % 2) {
+			// An X
+			bitmap = 'k';
+			player = 1;
+		} else {
+			// An O
+			bitmap = 'i';
+			player = 2;
+		}
+	}
+	TS_Point counterPos = getCounterPosition(x);
+	drawBitmap(bitmap, counterPos.x, counterPos.y);
+	boardState[x][0] = player;
+	boardState[x][1] = y;
+	
+	// For each of the possible small counters in this square
+	for (uint8_t i = 0; i < 9; i++) {
+		// Find any counters that exist and aren't the current counter
+		if (boardState[x][i + 2] != 0 && i + 2 != y) {
+			// Find the pair counter of the one found
+			// By going through all the squares
+			for (uint8_t j = 0; j < 9; j++) {
+				// And finding a counter of the same subscript that isn't the current one
+				if (boardState[j][i + 2] != 0 && j != x) {
+					// Check if this is the original square
+					if (i + 1 == origT) continue;
+					// If not repeat for the next counter
+					drawClassicalCounters(boardState, j, i + 2, origT);
 				}
 			}
 		}
@@ -593,6 +656,7 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 	// Start match
 	while (bigCounters < 9) {
 		uint8_t countersThisTurn = 0;
+		uint8_t recentSquares[] = {255, 255};
 		while (countersThisTurn < 2) {
 			while (true) {
 				if (!touchScreen.touched()) continue;
@@ -606,14 +670,20 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 			}
 
 			// Check to see if selected square is occupied
-			if (!(boardState[square][0] == 0)) continue;
+			if (boardState[square][0] != 0) continue;
+			if (boardState[square][turn + 1] != 0) continue;
 
 			// Update board state
 			boardState[square][turn + 1] = player;
+			if (recentSquares[0] == 255) {
+				recentSquares[0] = square;
+			} else {
+				recentSquares[1] = square;
+			}
 		
 
 			// Draw small nought or cross on selected square
-			drawSmallCounter(square, turn);
+			drawSmallCounter(square, turn, false);
 			
 			countersThisTurn++;
 		}
@@ -625,9 +695,51 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 			// Circle found
 			
 			// Ask user how to resolve
+			
+			// Draw bold counters
+			for (uint8_t i = 0; i < 9; i++) {
+				if (circle[i] != 255) {
+					for (uint8_t j = 0; j < 9; j++) {
+						if (boardState[j][circle[i] + 1]) {
+							drawSmallCounter(j, circle[i], true);
+						}
+					}
+				}
+			}
+			// Underline/Draw box around recent counters
+			for (uint8_t i = 0; i < 9; i++) {
+				if (boardState[i][turn + 1] != 0) {
+					TS_Point point = getSmallCounterPosition(i, turn);
+					tftDisplay.drawRect(point.x, point.y, 25, 25, 0x07FF);
+				}
+			}
+			
+			// Get the two boxes parameters
+			TS_Point square0 = getCounterPosition(recentSquares[0]);
+			TS_Point square1 = getCounterPosition(recentSquares[1]);
+			
+			
+			// Wait for the user to click one of the two boxes
+			uint8_t tappedSquare = 255;
+			while (true) {
+				if (!touchScreen.touched()) continue;
+				TS_Point point = getPoint();
+				if (point.x > square0.x && point.x < square0.x + 80 && point.y > square0.y && point.y < square0.y + 80) {
+					tappedSquare = recentSquares[0];
+					break;
+				} else if (point.x > square1.x && point.x < square1.x + 80 && point.y > square1.y && point.y < square1.y + 80) {
+					tappedSquare = recentSquares[1];
+					break;
+				}
+			}
 
 
 			// Turn to classical counters
+			if (tappedSquare != 255) {
+				drawClassicalCounters(boardState, tappedSquare, turn + 1, turn + 1);
+			} else {
+				Serial.println(F("Error"));
+			}
 		} 
 		
 		// winningRows[x][0] = winner
