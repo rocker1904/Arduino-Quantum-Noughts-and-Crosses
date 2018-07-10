@@ -1,20 +1,13 @@
-﻿/*Begining of Auto generated code by Atmel studio */
-#include <Arduino.h>
-
-/*End of auto generated code by Atmel studio */
-
+﻿
 /***************************************************
-Touchscreen Noughts and Crosses Project
+ Touchscreen Noughts and Crosses Project
 
 Using Adafruit TFT Capacitive Touch Shield and Arduino M0 Pro
-
-WIP:
-- Minor improvements
-- Consider better implementations
 
 Written by Sam Ellis
 ****************************************************/
 
+#include <Arduino.h> // Required by Atmel Studio
 #include <SPI.h>    // Communication with display
 #include <Adafruit_GFX.h>   // Graphics library
 #include <Adafruit_ILI9341.h>   // tftDisplay display library
@@ -22,7 +15,7 @@ Written by Sam Ellis
 #include <Wire.h>   // Needed by FT6206
 #include <Adafruit_FT6206.h>    // Capacitive touchscreen library
 
-// New type for keeping track of game state
+// New type for keeping track of game state (only used in classic N&C)
 enum State {
 	empty, nought, cross
 };
@@ -45,7 +38,7 @@ Adafruit_FT6206 touchScreen = Adafruit_FT6206();
 #define BUFFPIXEL 85
 
 // Array of arrays of three indexes in a row on a 3x3 grid
-uint8_t winIndexes[][3] = { {0, 4, 8}, {2, 4, 6}, {0, 1, 2}, {3, 4, 5},
+uint8_t winIndexes[][3] = {{0, 4, 8}, {2, 4, 6}, {0, 1, 2}, {3, 4, 5},
 {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}};
 
 // These read 16-bit and 32-bit types from the SD card file.
@@ -376,7 +369,7 @@ State addMove(uint8_t square, TS_Point marker, State player) {
 			} else {
 			bitmap = 'i';
 		}
-		drawBitmap(bitmap, marker.x - 2, marker.y);
+		drawBitmap(bitmap, marker.x, marker.y);
 		// Change players
 		player = cross;
 	}
@@ -468,7 +461,7 @@ TS_Point getSmallCounterPosition(uint8_t square, uint8_t turn) {
 	return counterPos;
 }
 
-void drawSmallCounter(uint8_t square, uint8_t turn, boolean bold) {
+void drawSmallCounter(uint8_t square, uint8_t turn) {
 	TS_Point counterPos;
 	
 	counterPos = getSmallCounterPosition(square, turn);
@@ -480,15 +473,11 @@ void drawSmallCounter(uint8_t square, uint8_t turn, boolean bold) {
 		bg = 'w';
 	}
 	
-	char type = 'c';
-	// TODO: Different coloured counters
-	if (bold) type = 'b';
-	
-	char bitmap[8] = {bg, type, ((String) turn).charAt(0), '.', 'b', 'm', 'p'};
+	char bitmap[8] = {bg, 'c', ((String) turn).charAt(0), '.', 'b', 'm', 'p'};
 	drawBitmap(bitmap, counterPos.x, counterPos.y);
 }
 
-void checkForCircle(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t origX, uint8_t subscripts[9]) {
+void findCircle(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t origX, uint8_t subscripts[9]) {
 	// For each of the possible small counters in this square
 	for (uint8_t i = 0; i < 9; i++) {
 		// Find any counters that exist and aren't the current counter
@@ -504,7 +493,7 @@ void checkForCircle(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t ori
 						return;
 					}
 					// If not repeat for the next counter
-					checkForCircle(boardState, j, i + 2, origX, subscripts);
+					findCircle(boardState, j, i + 2, origX, subscripts);
 					// When the function returns, check if it found the original square
 					if (subscripts[0] != 255) {
 						// If it did add this point on the end
@@ -522,33 +511,20 @@ void checkForCircle(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t ori
 }
 
 void drawClassicalCounters(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint8_t origX, uint8_t origY) {
-	// TODO: Add subscript to classic counters
 	// Draw classic counter
-	char bitmap;
-	uint8_t player;
+	char bg;
 	if (x % 2) {
-		// black
-		if (y % 2) {
-			// An O
-			bitmap = 'h';
-			player = 1;
-		} else {
-			// An X
-			bitmap = 'j';
-			player = 2;
-		}
+		bg = 'b';
 	} else {
-		// white/blueish
-		if (y % 2) {
-			// An O
-			bitmap = 'i';
-			player = 1;
-		} else {
-			// An X
-			bitmap = 'k';
-			player = 2;
-		}
+		bg = 'w';
 	}
+	uint8_t player;
+	if (y % 2) {
+		player = 1;
+	} else {
+		player = 2;
+	}
+	char bitmap[] = {bg , 'b', ((String) (y - 1)).charAt(0), '.', 'b', 'm', 'p'};
 	TS_Point counterPos = getCounterPosition(x);
 	drawBitmap(bitmap, counterPos.x, counterPos.y);
 	boardState[x][0] = player;
@@ -597,9 +573,9 @@ State game(uint8_t noughtsScore, uint8_t crossesScore) {
 		}
 
 		// Check to see if selected square is occupied
-		if (!(boardState[square] == empty)) continue;
+		if (boardState[square] != empty) continue;
 
-		// Update board state
+		// Update boardState
 		boardState[square] = player;
 
 		// Draw nought or cross on selected square and swap player
@@ -668,34 +644,25 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 		
 
 			// Draw small nought or cross on selected square
-			drawSmallCounter(square, turn, false);
+			drawSmallCounter(square, turn);
 			
 			countersThisTurn++;
 		}
 		
 		// Check for measurement
 		uint8_t circle[9] = {255, 255, 255, 255, 255, 255, 255, 255, 255};
-		checkForCircle(boardState, square, turn + 1, square, circle);
+		findCircle(boardState, square, turn + 1, square, circle);
 		if (circle[0] != 255) {
 			// Circle found
 			
 			// Ask user how to resolve
-			
-			// Draw bold counters
-			for (uint8_t i = 0; i < 9; i++) {
-				if (circle[i] != 255) {
-					for (uint8_t j = 0; j < 9; j++) {
-						if (boardState[j][circle[i] + 1]) {
-							drawSmallCounter(j, circle[i], true);
-						}
-					}
-				}
-			}
 			// Underline/Draw box around recent counters
 			for (uint8_t i = 0; i < 9; i++) {
 				if (boardState[i][turn + 1] != 0) {
 					TS_Point point = getSmallCounterPosition(i, turn);
-					tftDisplay.drawRect(point.x, point.y, 25, 25, 0x07FF);
+					//tftDisplay.drawRect(point.x, point.y, 25, 25, 0x07FF);
+					tftDisplay.drawLine(point.x + 2, point.y + 26, point.x + 24, point.y + 26, 0xF800);
+					tftDisplay.drawLine(point.x + 2, point.y + 25, point.x + 24, point.y + 25, 0xF800);
 				}
 			}
 			
@@ -739,7 +706,7 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 				// Someone has won
 				
 				// Add the player that won to winningRows
-				winningRows[numOfWinningRows][0] = player;
+				winningRows[numOfWinningRows][0] = boardState[winIndexes[i][0]][0];
 				
 				// Total the subscripts and store in winningRows
 				uint8_t subscriptTotal = 0;
@@ -763,8 +730,6 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 		Serial.print(F("winner = "));
 		Serial.println(winner);
 		if (winner != 0) break;
-		
-		// TODO: Test removing this delay
 		
 		turn++;
 		(player == 1) ? player = 2 : player = 1;
@@ -958,45 +923,48 @@ void loop() {
 	drawBitmap('l', 0, 0);
 	String s = (String) maxGames;
 	char maxGamesChar = s.charAt(0);
-	drawBitmap(maxGamesChar, 173, 149);
+	drawBitmap(maxGamesChar, 173, 115);
 	boolean quantumMatch;
 
 	while (true) {
 		if (touchScreen.touched()) {
 			TS_Point point = getPoint();
-			if (point.x > 22 && point.x < 216 && point.y > 205 && point.y < 305) {
-				// They pressed the start button
+			if (point.x > 20 && point.x < 220 && point.y > 240 && point.y < 315) {
+				// They pressed the quantum button
 				quantumMatch = true;
 				break;
-				} else if (point.x > 100 && point.x < 180 && point.y > 100 && point.y < 220) {
-				// They press the left "best of:" button
+			} else if (point.x > 20 && point.x < 220 && point.y > 170 && point.y < 241) {
+				// They pressed the classic button
+				quantumMatch = false;
+				break;
+			} else if (point.x > 105 && point.x < 181 && point.y > 90 && point.y < 171) {
+				// They pressed the left "best of:" button
 				if (maxGames != 1) {
 					maxGames -= 2;
 					// Update score
 					String s = (String) maxGames;
 					char maxGamesChar = s.charAt(0);
-					drawBitmap(maxGamesChar, 173, 149);
+					drawBitmap(maxGamesChar, 173, 115);
 				}
 				continue;
-				} else if (point.x > 180 && point.x < 241 && point.y > 100 && point.y < 220) {
-				// They press the left "best of:" button
+			} else if (point.x > 180 && point.x < 241 && point.y > 90 && point.y < 171) {
+				// They pressed the left "best of:" button
 				if (maxGames != 9) {
 					maxGames += 2;
 					// Update score
 					String s = (String) maxGames;
 					char maxGamesChar = s.charAt(0);
-					drawBitmap(maxGamesChar, 173, 149);
+					drawBitmap(maxGamesChar, 173, 115);
 				}
 				continue;
-				} else {
+			} else {
 				continue;
 			}
-			} else {
+		} else {
 			continue;
 		}
 	}
 	
-	// TODO: Add selecting game-mode
 	if (quantumMatch) {
 		playQuantumMatch(maxGames);
 		} else {
