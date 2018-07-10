@@ -20,7 +20,6 @@ enum State {
 	empty, nought, cross
 };
 
-// Debugging
 #define verbose false
 
 // Use hardware SPI (on 13, 12, 11) and below for CS/DC
@@ -520,9 +519,9 @@ void drawClassicalCounters(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint
 	}
 	uint8_t player;
 	if (y % 2) {
-		player = 1;
-	} else {
 		player = 2;
+	} else {
+		player = 1;
 	}
 	char bitmap[] = {bg , 'b', ((String) (y - 1)).charAt(0), '.', 'b', 'm', 'p'};
 	TS_Point counterPos = getCounterPosition(x);
@@ -544,6 +543,45 @@ void drawClassicalCounters(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint
 			}
 		}
 	}
+}
+
+uint8_t checkForQuantumWinner(uint8_t boardState[9][11]) {
+	// winningRows[x][0] = winner
+	// winningRows[x][1] = subscript total
+	uint8_t winningRows[3][2] = {{0, 0}, {0, 0}, {0, 0}};
+	uint8_t numOfWinningRows = 0;
+	uint8_t winner = 0;
+	// Check to see if someone has won
+	for (uint8_t i = 0; i < 8; i++) {
+		if (boardState[winIndexes[i][0]][0] == boardState[winIndexes[i][1]][0]
+		&& boardState[winIndexes[i][0]][0] == boardState[winIndexes[i][2]][0]
+		&& boardState[winIndexes[i][0]][0] != 0) {
+			// Someone has won
+				
+			// Add the player that won to winningRows
+			winningRows[numOfWinningRows][0] = boardState[winIndexes[i][0]][0];
+				
+			// Total the subscripts and store in winningRows
+			uint8_t highestSubscript = 0;
+			for (uint8_t j = 0; j < 3; j++) {
+					if (highestSubscript < boardState[winIndexes[i][j]][1]) {
+						highestSubscript = boardState[winIndexes[i][j]][1];
+					}
+			}
+			winningRows[numOfWinningRows][1] = highestSubscript;
+			numOfWinningRows++;
+		}
+	}
+		
+	// Find the winner if one exists
+	uint8_t lowestMaxSubscript = 255;
+	for (uint8_t i = 0; i < 3; i++) {
+		if (winningRows[i][1] < lowestMaxSubscript && winningRows[i][1] != 0) {
+			winner = winningRows[i][0];
+			lowestMaxSubscript = winningRows[i][1];
+		}
+	}
+	return winner;
 }
 
 State game(uint8_t noughtsScore, uint8_t crossesScore) {
@@ -608,16 +646,40 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 	uint8_t bigCounters = 0;
-	uint8_t square = 255;
 	TS_Point newCounterPos;
 
 	// Draw grid
 	drawBitmap('d', 0, 80);
 
-	// Start match
+	// Game logic
 	while (bigCounters < 9) {
 		uint8_t countersThisTurn = 0;
+		uint8_t square = 255;
 		uint8_t recentSquares[] = {255, 255};
+		
+		// On final turn check if only one square is left
+		if (turn == 9) {
+			uint8_t classicalCounters = 0;
+			for (uint8_t i = 0; i < 9; i++) {
+				if (boardState[i][0] != 0) {
+					classicalCounters++;
+				}
+			}
+			if (classicalCounters == 8) {
+				while (true) {
+					if (!touchScreen.touched()) continue;
+					TS_Point point = getPoint();
+					square = getSquare(point);
+					if (square == 255) continue;
+					if (boardState[square][0] == 0) break;
+				}
+				boardState[square][turn + 1] = player;
+				drawSmallCounter(square, turn);
+				drawClassicalCounters(boardState, square, turn + 1, square, turn + 1);
+				return checkForQuantumWinner(boardState);
+			}
+		}
+		
 		while (countersThisTurn < 2) {
 			while (true) {
 				if (!touchScreen.touched()) continue;
@@ -692,40 +754,9 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 			} else {
 				Serial.println(F("Error"));
 			}
-		} 
-		
-		// winningRows[x][0] = winner
-		// winningRows[x][1] = subscript total
-		uint8_t winningRows[3][2] = {{0, 0}, {0, 0}, {0, 0}};
-		uint8_t numOfWinningRows = 0;
-		// Check to see if someone has won
-		for (uint8_t i = 0; i < 8; i++) {
-			if (boardState[winIndexes[i][0]][0] == boardState[winIndexes[i][1]][0]
-			&& boardState[winIndexes[i][0]][0] == boardState[winIndexes[i][2]][0]
-			&& boardState[winIndexes[i][0]][0] != 0) {
-				// Someone has won
-				
-				// Add the player that won to winningRows
-				winningRows[numOfWinningRows][0] = boardState[winIndexes[i][0]][0];
-				
-				// Total the subscripts and store in winningRows
-				uint8_t subscriptTotal = 0;
-				for (uint8_t j = 0; j < 3; j++) {
-					subscriptTotal += boardState[winIndexes[i][j]][1];
-				}
-				winningRows[numOfWinningRows][1] = subscriptTotal;
-				numOfWinningRows++;
-			}
 		}
-		
-		// Find the winner if one exists
-		uint8_t highestSubscript = 0;
-		for (uint8_t i = 0; i < 3; i++) {
-			if (winningRows[i][1] > highestSubscript) {
-				winner = winningRows[i][0];
-				highestSubscript = winningRows[i][1];
-			}
-		}
+
+		winner = checkForQuantumWinner(boardState);
 		
 		Serial.print(F("winner = "));
 		Serial.println(winner);
