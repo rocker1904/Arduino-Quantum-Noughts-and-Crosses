@@ -496,7 +496,8 @@ void drawClassicalCounters(uint8_t boardState[9][11], uint8_t x, uint8_t y, uint
 uint8_t checkForQuantumWinner(uint8_t boardState[9][11]) {
 	// winningRows[x][0] = winner
 	// winningRows[x][1] = subscript total
-	uint8_t winningRows[3][2] = {{0, 0}, {0, 0}, {0, 0}};
+	// winningRows[x][2] = winIndexes index (the row that won)
+	uint8_t winningRows[3][3] = {0};
 	uint8_t numOfWinningRows = 0;
 	uint8_t winner = 0;
 	// Check to see if someone has won
@@ -517,18 +518,39 @@ uint8_t checkForQuantumWinner(uint8_t boardState[9][11]) {
 					}
 			}
 			winningRows[numOfWinningRows][1] = highestSubscript;
+			
+			// Store the winIndex index of the row that won
+			winningRows[numOfWinningRows][2] = i;
 			numOfWinningRows++;
 		}
 	}
 		
 	// Find the winner if one exists
 	uint8_t lowestMaxSubscript = 255;
+	uint8_t iForLowestMaxSubscript = 255;
 	for (uint8_t i = 0; i < 3; i++) {
 		if (winningRows[i][1] < lowestMaxSubscript && winningRows[i][1] != 0) {
 			winner = winningRows[i][0];
 			lowestMaxSubscript = winningRows[i][1];
+			iForLowestMaxSubscript = i;
 		}
 	}
+	
+	// If theres a winner, draw coloured counters on the winning row
+	for (uint8_t i = 0; i < 3; i++) {
+		uint8_t x = winIndexes[winningRows[iForLowestMaxSubscript][2]][i];
+		uint8_t y = boardState[winIndexes[winningRows[iForLowestMaxSubscript][2]][i]][1];
+		char bg;
+		if (x % 2) {
+			bg = 'b';
+		} else {
+			bg = 'w';
+		}
+		char bitmap[] = {bg , 'g', ((String) y).charAt(0), '.', 'b', 'm', 'p'};
+		TS_Point counterPos = getCounterPosition(x);
+		drawBitmap(bitmap, counterPos.x, counterPos.y);
+	}
+	
 	return winner;
 }
 
