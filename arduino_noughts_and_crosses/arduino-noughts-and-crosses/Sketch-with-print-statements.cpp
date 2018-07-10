@@ -71,27 +71,44 @@ void drawBitmap(char fileInput, int16_t x, int16_t y) {
 	boolean flip = true;        // BMP is stored bottom-to-top
 	int w, h, row, col, x2, y2, bx1, by1;
 	uint8_t r, g, b;
-	uint32_t pos = 0;
+	uint32_t pos = 0, startTime = millis();
 	char filename[6] = {fileInput, '.', 'b', 'm', 'p'};
 
 	if ((x >= tftDisplay.width()) || (y >= tftDisplay.height())) return;
+
+	Serial.println();
+	Serial.print(F("Loading image '"));
+	Serial.print(filename);
+	Serial.println('\'');
 
 	// Open requested file on SD card
 	bmpFile = SD.open(filename);
 
 	// Parse BMP header
+	Serial.println(F("Start parse"));
 	if (read16(bmpFile) == 0x4D42) { // BMP signature
-		read32(bmpFile); // Read file size
+		Serial.print(F("File size: "));
+		Serial.println(read32(bmpFile));
 		(void) read32(bmpFile); // Read & ignore creator bytes
 		bmpImageoffset = read32(bmpFile); // Start of image data
-		read32(bmpFile);	// Read DIB header
+		Serial.print(F("Image Offset: "));
+		Serial.println(bmpImageoffset, DEC);
+		// Read DIB header
+		Serial.print(F("Header size: "));
+		Serial.println(read32(bmpFile));
 		bmpWidth = read32(bmpFile);
 		bmpHeight = read32(bmpFile);
 		if (read16(bmpFile) == 1) { // # planes -- must be '1'
 			bmpDepth = read16(bmpFile); // bits per pixel
+			Serial.print(F("Bit Depth: "));
+			Serial.println(bmpDepth);
 			if ((bmpDepth == 24) && (read32(bmpFile) == 0)) { // 0 = uncompressed
 
 				goodBmp = true; // Supported BMP format -- proceed!
+				Serial.print(F("Image size: "));
+				Serial.print(bmpWidth);
+				Serial.print('x');
+				Serial.println(bmpHeight);
 
 				// BMP rows are padded (if needed) to 4-byte boundary
 				rowSize = (bmpWidth * 3 + 3) & ~3;
@@ -164,10 +181,17 @@ void drawBitmap(char fileInput, int16_t x, int16_t y) {
 					} // end scanline
 					tftDisplay.endWrite(); // End last tftDisplay transaction
 				} // end onscreen
+				Serial.print(F("Loaded in "));
+				Serial.print(millis() - startTime);
+				Serial.println(F(" ms"));
 			} // end goodBmp
 		}
 	}
+
 	bmpFile.close();
+	if (!goodBmp)
+	Serial.println(F("BMP format not recognized or SD not mounted"));
+	Serial.println();
 }
 
 void drawBitmap(char* filename, int16_t x, int16_t y) {
@@ -183,26 +207,43 @@ void drawBitmap(char* filename, int16_t x, int16_t y) {
 	boolean flip = true;        // BMP is stored bottom-to-top
 	int w, h, row, col, x2, y2, bx1, by1;
 	uint8_t r, g, b;
-	uint32_t pos = 0;
+	uint32_t pos = 0, startTime = millis();
 
 	if ((x >= tftDisplay.width()) || (y >= tftDisplay.height())) return;
+
+	Serial.println();
+	Serial.print(F("Loading image '"));
+	Serial.print(filename);
+	Serial.println('\'');
 
 	// Open requested file on SD card
 	bmpFile = SD.open(filename);
 
 	// Parse BMP header
+	Serial.println(F("Start parse"));
 	if (read16(bmpFile) == 0x4D42) { // BMP signature
-		read32(bmpFile); // Read file size
+		Serial.print(F("File size: "));
+		Serial.println(read32(bmpFile));
 		(void) read32(bmpFile); // Read & ignore creator bytes
 		bmpImageoffset = read32(bmpFile); // Start of image data
-		read32(bmpFile); // Read DIB header
+		Serial.print(F("Image Offset: "));
+		Serial.println(bmpImageoffset, DEC);
+		// Read DIB header
+		Serial.print(F("Header size: "));
+		Serial.println(read32(bmpFile));
 		bmpWidth = read32(bmpFile);
 		bmpHeight = read32(bmpFile);
 		if (read16(bmpFile) == 1) { // # planes -- must be '1'
 			bmpDepth = read16(bmpFile); // bits per pixel
+			Serial.print(F("Bit Depth: "));
+			Serial.println(bmpDepth);
 			if ((bmpDepth == 24) && (read32(bmpFile) == 0)) { // 0 = uncompressed
 
 				goodBmp = true; // Supported BMP format -- proceed!
+				Serial.print(F("Image size: "));
+				Serial.print(bmpWidth);
+				Serial.print('x');
+				Serial.println(bmpHeight);
 
 				// BMP rows are padded (if needed) to 4-byte boundary
 				rowSize = (bmpWidth * 3 + 3) & ~3;
@@ -275,10 +316,17 @@ void drawBitmap(char* filename, int16_t x, int16_t y) {
 					} // end scanline
 					tftDisplay.endWrite(); // End last tftDisplay transaction
 				} // end onscreen
+				Serial.print(F("Loaded in "));
+				Serial.print(millis() - startTime);
+				Serial.println(F(" ms"));
 			} // end goodBmp
 		}
 	}
+
 	bmpFile.close();
+	if (!goodBmp)
+	Serial.println(F("BMP format not recognized or SD not mounted"));
+	Serial.println();
 }
 
 TS_Point getPoint() {
@@ -666,13 +714,14 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 		}
 
 		winner = checkForQuantumWinner(boardState);
+		
+		Serial.print(F("winner = "));
+		Serial.println(winner);
 		if (winner != 0) break;
 		
 		// Increment turn and switch player
 		turn++;
 		(player == 1) ? player = 2 : player = 1;
-		// Short delay to prevent tapping slowly from placing two moves
-		delay(100);
 	}
 	return winner;
 }
@@ -834,12 +883,13 @@ void playQuantumMatch(int maxGames) {
 		}
 	}
 	exit:
-	return;
+	Serial.println("Broke while loop");
 }
 
 void setup() {
-	
+
 	Serial.begin(9600);
+	Serial.println("test");
 
 	tftDisplay.begin();
 
@@ -850,10 +900,9 @@ void setup() {
 	}
 
 	if (!SD.begin(SD_CS)) {
-		// Failed to initialise SD card
+		Serial.println("Failed to initialise SD card");
 		// Usually because one isn't connected
 		// Could also happen if not formatted as FAT or FAT32
-		while (true); // Nothing will be drawn on screen so stop
 	}
 }
 

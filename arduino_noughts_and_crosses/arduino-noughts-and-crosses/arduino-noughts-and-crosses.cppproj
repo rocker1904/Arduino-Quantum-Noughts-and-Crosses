@@ -234,6 +234,7 @@
       <Value>%24(ProjectDir)\..\ArduinoCore\include\libraries\SD\utility</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
+  <armgcc.compiler.optimization.level>Optimize most (-O3)</armgcc.compiler.optimization.level>
   <armgcc.compiler.optimization.OtherFlags>-fno-threadsafe-statics -fno-exceptions</armgcc.compiler.optimization.OtherFlags>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <armgcc.compiler.optimization.PrepareDataForGarbageCollection>True</armgcc.compiler.optimization.PrepareDataForGarbageCollection>

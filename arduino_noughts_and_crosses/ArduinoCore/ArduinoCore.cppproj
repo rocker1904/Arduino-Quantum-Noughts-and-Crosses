@@ -226,6 +226,7 @@
       <Value>..\include\libraries\Adafruit_GFX_Library\Fonts</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
+  <armgcc.compiler.optimization.level>Optimize most (-O3)</armgcc.compiler.optimization.level>
   <armgcc.compiler.optimization.OtherFlags>-fno-threadsafe-statics -fno-exceptions</armgcc.compiler.optimization.OtherFlags>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <armgcc.compiler.optimization.PrepareDataForGarbageCollection>True</armgcc.compiler.optimization.PrepareDataForGarbageCollection>
@@ -275,6 +276,7 @@
       <Value>..\include\libraries\Adafruit_GFX_Library\Fonts</Value>
     </ListValues>
   </armgcccpp.compiler.directories.IncludePaths>
+  <armgcccpp.compiler.optimization.level>Optimize most (-O3)</armgcccpp.compiler.optimization.level>
   <armgcccpp.compiler.optimization.OtherFlags>-fno-threadsafe-statics -fno-exceptions</armgcccpp.compiler.optimization.OtherFlags>
   <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>
