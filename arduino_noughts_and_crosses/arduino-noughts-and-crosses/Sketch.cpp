@@ -532,8 +532,7 @@ uint8_t checkForQuantumWinner(uint8_t boardState[9][11]) {
 	return winner;
 }
 
-State game(uint8_t noughtsScore, uint8_t crossesScore) {
-	State player = cross;
+State game(uint8_t noughtsScore, uint8_t crossesScore, State player) {
 	State boardState[9] = {empty, empty, empty, empty, empty, empty, empty, empty,
 	empty};
 	State winner = empty;
@@ -659,6 +658,8 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 			TS_Point square0 = getCounterPosition(recentSquares[0]);
 			TS_Point square1 = getCounterPosition(recentSquares[1]);
 			
+			// Short delay to prevent tapping slowly from resolving as well
+			delay(200);
 			
 			// Wait for the user to click one of the two boxes
 			uint8_t tappedSquare = 255;
@@ -686,12 +687,13 @@ uint8_t quantumGame(uint8_t noughtsScore, uint8_t crossesScore) {
 		turn++;
 		(player == 1) ? player = 2 : player = 1;
 		// Short delay to prevent tapping slowly from placing two moves
-		delay(50);
+		delay(200);
 	}
 	return winner;
 }
 
 void playMatch(int maxGames) {
+	State player = cross;
 	uint8_t noughtsScore = 0;
 	uint8_t crossesScore = 0;
 	uint8_t gamesPlayed = 0;
@@ -699,7 +701,8 @@ void playMatch(int maxGames) {
 	drawScoreBoard(noughtsScore, crossesScore);
 
 	while (gamesPlayed < maxGames) {
-		State winner = game(noughtsScore, crossesScore);
+		State winner = game(noughtsScore, crossesScore, player);
+		(player == cross) ? player = nought : player = cross;
 
 		// Select win banner and add to winners score
 		char bitmap;
@@ -897,7 +900,7 @@ void loop() {
 				continue;
 			}
 			// Short delay to prevent tapping slowly from registering twice
-			delay(50);
+			delay(200);
 		}
 	}
 	
